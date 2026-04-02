@@ -113,15 +113,13 @@ export default function Navbar() {
             </button>
 
             {/* Admin */}
-            {isAdmin && (
-              <Link
-                href="/admin/products"
-                className="p-2 rounded transition-colors duration-300 text-white hover:text-[#C4956A]"
-                aria-label="Admin"
-              >
-                <Settings size={18} />
-              </Link>
-            )}
+            <Link
+              href={isAdmin ? '/admin/products' : '/admin'}
+              className="p-2 rounded transition-colors duration-300 text-white hover:text-[#C4956A]"
+              aria-label="Admin"
+            >
+              <Settings size={18} />
+            </Link>
 
             {/* Cart */}
             <button
