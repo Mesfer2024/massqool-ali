@@ -240,9 +240,9 @@ export default function AdminProductsPage() {
             <div>
               <label className="text-white/60 text-sm mb-2 block">التصنيف *</label>
               <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as ProductCategory }))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#C4956A] text-sm"
-                style={{ fontFamily: font }}>
-                {CATEGORY_OPTIONS.map(opt => <option key={opt.value} value={opt.value} className="bg-[#1a1a1a] text-white">{opt.label}</option>)}
+                className="w-full border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C4956A] text-sm"
+                style={{ fontFamily: font, backgroundColor: '#1a1a1a', color: '#fff' }}>
+                {CATEGORY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
               </select>
             </div>
             <div>

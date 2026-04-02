@@ -159,11 +159,11 @@ export default function AdminGalleryPage() {
           <div className="mb-4">
             <label className="text-white/50 text-sm mb-2 block">التصنيف (اختياري)</label>
             <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#C4956A]"
-              style={{ fontFamily: font }}>
-              <option value="" className="bg-[#1a1a1a] text-white">بدون تصنيف</option>
+              className="border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#C4956A]"
+              style={{ fontFamily: font, backgroundColor: '#1a1a1a', color: '#fff' }}>
+              <option value="">بدون تصنيف</option>
               {categories.map((cat: GalleryCategory) => (
-                <option key={cat.key} value={cat.key} className="bg-[#1a1a1a] text-white">{cat.labelAr}</option>
+                <option key={cat.key} value={cat.key}>{cat.labelAr}</option>
               ))}
             </select>
           </div>
@@ -204,8 +204,8 @@ export default function AdminGalleryPage() {
                     value={item.category}
                     onChange={e => updateItemCategory(item.id, e.target.value)}
                     onClick={e => e.stopPropagation()}
-                    className="bg-black/80 border border-white/20 rounded-lg px-2 py-1 text-xs text-white w-28 focus:outline-none"
-                    style={{ fontFamily: font }}
+                    className="border border-white/20 rounded-lg px-2 py-1 text-xs w-28 focus:outline-none"
+                    style={{ fontFamily: font, backgroundColor: '#1a1a1a', color: '#fff' }}
                   >
                     <option value="">بدون تصنيف</option>
                     {categories.map((cat: GalleryCategory) => (
