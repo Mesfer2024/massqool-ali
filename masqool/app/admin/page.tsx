@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'ALwaked99%';
+const ADMIN_USERNAME = process.env.NEXT_PUBLIC_ADMIN_USERNAME ?? 'admin';
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? '';
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('');

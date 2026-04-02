@@ -241,12 +241,12 @@ export default function CustomerReviewsSection() {
                   </div>
 
                   {/* Name */}
-                  <input value={name} onChange={(e) => setName(e.target.value)} required
+                  <input value={name} onChange={(e) => setName(e.target.value.slice(0, 50))} required maxLength={50}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A] transition-colors"
                     placeholder={lang === 'ar' ? 'اسمك الكريم' : 'Your name'} style={{ fontFamily: font }} />
 
                   {/* Review text */}
-                  <textarea value={text} onChange={(e) => setText(e.target.value)} required minLength={10} rows={3}
+                  <textarea value={text} onChange={(e) => setText(e.target.value.slice(0, 500))} required minLength={10} maxLength={500} rows={3}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A] transition-colors resize-none"
                     placeholder={lang === 'ar' ? 'اكتب رأيك...' : 'Write your review...'} style={{ fontFamily: font }} />
 
