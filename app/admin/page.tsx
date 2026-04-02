@@ -20,15 +20,12 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
-      // DEBUG: show env status in error message temporarily
-      const envPass = ADMIN_PASSWORD;
-      const envUser = ADMIN_USERNAME;
-      if (username === envUser && password === envPass) {
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         localStorage.setItem('admin-auth', 'true');
         window.dispatchEvent(new Event('admin-auth-change'));
         router.push('/admin/products');
       } else {
-        setError(`خطأ — ENV pass len: ${envPass.length}, input pass len: ${password.length}, ENV user: "${envUser}", match: user=${username === envUser} pass=${password === envPass}`);
+        setError('اسم المستخدم أو كلمة المرور غير صحيحة');
         setLoading(false);
       }
     }, 400);

@@ -161,9 +161,9 @@ export default function AdminGalleryPage() {
             <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}
               className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#C4956A]"
               style={{ fontFamily: font }}>
-              <option value="">بدون تصنيف</option>
+              <option value="" className="bg-[#1a1a1a] text-white">بدون تصنيف</option>
               {categories.map((cat: GalleryCategory) => (
-                <option key={cat.key} value={cat.key}>{cat.labelAr}</option>
+                <option key={cat.key} value={cat.key} className="bg-[#1a1a1a] text-white">{cat.labelAr}</option>
               ))}
             </select>
           </div>

@@ -242,7 +242,7 @@ export default function AdminProductsPage() {
               <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as ProductCategory }))}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#C4956A] text-sm"
                 style={{ fontFamily: font }}>
-                {CATEGORY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                {CATEGORY_OPTIONS.map(opt => <option key={opt.value} value={opt.value} className="bg-[#1a1a1a] text-white">{opt.label}</option>)}
               </select>
             </div>
             <div>
