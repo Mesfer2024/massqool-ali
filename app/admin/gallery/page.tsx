@@ -44,6 +44,8 @@ export default function AdminGalleryPage() {
   const [uploadNameAr, setUploadNameAr] = useState('');
   const [uploadNameEn, setUploadNameEn] = useState('');
   const [uploadPrice, setUploadPrice] = useState('');
+  const [uploadDimAr, setUploadDimAr] = useState('');
+  const [uploadDimEn, setUploadDimEn] = useState('');
 
   // New category form
   const [showCatForm, setShowCatForm] = useState(false);
@@ -55,12 +57,16 @@ export default function AdminGalleryPage() {
   const [editNameAr, setEditNameAr] = useState('');
   const [editNameEn, setEditNameEn] = useState('');
   const [editPrice, setEditPrice] = useState('');
+  const [editDimAr, setEditDimAr] = useState('');
+  const [editDimEn, setEditDimEn] = useState('');
 
   const startEdit = (item: typeof items[0]) => {
     setEditingId(item.id);
     setEditNameAr(item.nameAr || '');
     setEditNameEn(item.nameEn || '');
     setEditPrice(item.price ? String(item.price) : '');
+    setEditDimAr(item.dimensionsAr || '');
+    setEditDimEn(item.dimensionsEn || '');
   };
 
   const saveEdit = () => {
@@ -69,6 +75,8 @@ export default function AdminGalleryPage() {
       nameAr: editNameAr.trim() || undefined,
       nameEn: editNameEn.trim() || undefined,
       price: editPrice ? Number(editPrice) : undefined,
+      dimensionsAr: editDimAr.trim() || undefined,
+      dimensionsEn: editDimEn.trim() || undefined,
     });
     setEditingId(null);
   };
@@ -86,6 +94,8 @@ export default function AdminGalleryPage() {
       nameAr: uploadNameAr.trim() || undefined,
       nameEn: uploadNameEn.trim() || undefined,
       price: uploadPrice ? Number(uploadPrice) : undefined,
+      dimensionsAr: uploadDimAr.trim() || undefined,
+      dimensionsEn: uploadDimEn.trim() || undefined,
     };
     for (const file of Array.from(files)) {
       if (!file.type.startsWith('image/')) continue;
@@ -94,7 +104,7 @@ export default function AdminGalleryPage() {
       addItem(compressed, selectedCategory, extra);
     }
     setUploading(false);
-    setUploadNameAr(''); setUploadNameEn(''); setUploadPrice('');
+    setUploadNameAr(''); setUploadNameEn(''); setUploadPrice(''); setUploadDimAr(''); setUploadDimEn('');
   };
 
   const handleAddCategory = () => {
@@ -184,7 +194,7 @@ export default function AdminGalleryPage() {
           <h2 className="font-semibold flex items-center gap-2 text-lg mb-4"><Upload size={16} /> رفع صور جديدة</h2>
 
           {/* Category selector for upload */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
             <div>
               <label className="text-white/50 text-xs mb-1 block">التصنيف</label>
               <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}
@@ -214,6 +224,20 @@ export default function AdminGalleryPage() {
               <label className="text-white/50 text-xs mb-1 block">السعر (ريال)</label>
               <input type="text" inputMode="numeric" value={uploadPrice} onChange={e => setUploadPrice(e.target.value.replace(/[^0-9]/g, ''))}
                 placeholder="650"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]"
+                style={{ fontFamily: font }} />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">الأبعاد (عربي)</label>
+              <input value={uploadDimAr} onChange={e => setUploadDimAr(e.target.value)}
+                placeholder="مثال: 30 × 20 × 15 سم"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]"
+                style={{ fontFamily: font }} />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">الأبعاد (English)</label>
+              <input value={uploadDimEn} onChange={e => setUploadDimEn(e.target.value)}
+                placeholder="e.g. 30 × 20 × 15 cm"
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]"
                 style={{ fontFamily: font }} />
             </div>
@@ -263,10 +287,15 @@ export default function AdminGalleryPage() {
                       <input value={editNameEn} onChange={e => setEditNameEn(e.target.value)} placeholder="English name"
                         className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />
                     </div>
-                    <div className="flex gap-2 items-center">
+                    <div className="grid grid-cols-2 gap-2">
                       <input type="text" inputMode="numeric" value={editPrice} onChange={e => setEditPrice(e.target.value.replace(/[^0-9]/g, ''))} placeholder="السعر"
-                        className="w-24 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />
-                      <span className="text-white/30 text-xs">ريال</span>
+                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />
+                      <input value={editDimAr} onChange={e => setEditDimAr(e.target.value)} placeholder="الأبعاد (عربي)"
+                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <input value={editDimEn} onChange={e => setEditDimEn(e.target.value)} placeholder="Dimensions (English)"
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />
                       <button onClick={saveEdit} className="flex items-center gap-1 text-xs px-3 py-1.5 bg-[#C4956A] hover:bg-[#8B6245] rounded-lg transition-colors"><Check size={12} /> حفظ</button>
                       <button onClick={() => setEditingId(null)} className="text-xs px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">إلغاء</button>
                     </div>
@@ -284,6 +313,9 @@ export default function AdminGalleryPage() {
                         </span>
                       )}
                       {item.price ? <span className="text-[#C4956A]">{item.price.toLocaleString()} ريال</span> : <span className="text-white/20">بدون سعر</span>}
+                      {(item.dimensionsAr || item.dimensionsEn) && (
+                        <span className="text-white/50">{item.dimensionsAr || item.dimensionsEn}</span>
+                      )}
                       {item.isSold && <span className="text-orange-400 font-semibold">مباعة</span>}
                     </div>
                   </div>

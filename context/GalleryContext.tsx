@@ -9,6 +9,8 @@ export interface GalleryItem {
   nameAr?: string;
   nameEn?: string;
   price?: number;
+  dimensionsAr?: string;
+  dimensionsEn?: string;
 }
 
 export interface GalleryCategory {

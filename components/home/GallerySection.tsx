@@ -254,19 +254,26 @@ export default function GallerySection() {
 
             {/* Item info + CTA */}
             <div className="flex flex-col items-center gap-3 px-5 pb-6 flex-shrink-0" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
-              {/* Name & Price */}
-              {(filtered[lightbox].nameAr || filtered[lightbox].nameEn || filtered[lightbox].price) && (
+              {/* Name & Price & Dimensions */}
+              {(filtered[lightbox].nameAr || filtered[lightbox].nameEn || filtered[lightbox].price || filtered[lightbox].dimensionsAr || filtered[lightbox].dimensionsEn) && (
                 <div className="text-center">
                   {(filtered[lightbox].nameAr || filtered[lightbox].nameEn) && (
                     <p className="text-white text-base font-semibold" style={{ fontFamily: font }}>
                       {lang === 'ar' ? (filtered[lightbox].nameAr || filtered[lightbox].nameEn) : (filtered[lightbox].nameEn || filtered[lightbox].nameAr)}
                     </p>
                   )}
-                  {filtered[lightbox].price != null && filtered[lightbox].price! > 0 && (
-                    <p className="text-[#C4956A] text-sm font-bold mt-1" style={{ fontFamily: font }}>
-                      {filtered[lightbox].price!.toLocaleString()} {lang === 'ar' ? 'ريال' : 'SAR'}
-                    </p>
-                  )}
+                  <div className="flex items-center justify-center gap-3 mt-1">
+                    {filtered[lightbox].price != null && filtered[lightbox].price! > 0 && (
+                      <p className="text-[#C4956A] text-sm font-bold" style={{ fontFamily: font }}>
+                        {filtered[lightbox].price!.toLocaleString()} {lang === 'ar' ? 'ريال' : 'SAR'}
+                      </p>
+                    )}
+                    {(lang === 'ar' ? filtered[lightbox].dimensionsAr : filtered[lightbox].dimensionsEn) && (
+                      <p className="text-white/50 text-xs" style={{ fontFamily: font }}>
+                        {lang === 'ar' ? filtered[lightbox].dimensionsAr : filtered[lightbox].dimensionsEn}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
 
