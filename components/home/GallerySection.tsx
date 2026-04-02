@@ -29,10 +29,10 @@ export default function GallerySection() {
     ? items
     : items.filter(i => i.category === activeCategory);
 
-  const waMsg = (i: number) =>
+  const waMsg = (id: string) =>
     `${waBase}?text=${encodeURIComponent(lang === 'ar'
-      ? `مرحباً، أود الاستفسار عن القطعة رقم ${i + 1} في المعرض`
-      : `Hello, I'm interested in gallery piece #${i + 1}`)}`;
+      ? `مرحباً، أود الاستفسار عن القطعة ${id} في المعرض`
+      : `Hello, I'm interested in gallery piece ${id}`)}`;
 
   return (
     <section className="section-padding bg-cream dark:bg-[#1A1714]">
@@ -83,30 +83,33 @@ export default function GallerySection() {
           </div>
         )}
 
-        {/* Masonry columns — images keep natural ratio */}
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-3 md:gap-4">
+        {/* Masonry columns — gap-3/mb-3 must stay in sync */}
+        <motion.div
+          initial="hidden" whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
+          className="columns-2 md:columns-3 lg:columns-4 gap-3 md:gap-4"
+        >
           {filtered.map((item, i) => (
             <motion.div key={item.id} variants={fadeUp}
-              initial="hidden" whileInView="visible" viewport={{ once: true }}
               className="group relative overflow-hidden rounded-sm bg-stone cursor-pointer mb-3 md:mb-4 break-inside-avoid"
               whileHover={{ y: -3 }} transition={{ duration: 0.3 }}
+              role="button" tabIndex={0}
               onClick={() => setLightbox(i)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setLightbox(i); }}
             >
               {isDataUrl(item.src) ? (
                 <DataUrlImg src={item.src} alt={`Massqool gallery ${i + 1}`}
                   className="w-full h-auto block group-hover:scale-105 transition-transform duration-700 ease-out" />
               ) : (
-                <img src={item.src} alt={`Massqool gallery ${i + 1}`}
+                <img src={item.src} alt={`Massqool gallery ${i + 1}`} loading="lazy"
                   className="w-full h-auto block group-hover:scale-105 transition-transform duration-700 ease-out" />
               )}
 
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/50 transition-colors duration-300 flex flex-col items-center justify-center gap-3">
-                {/* Eye icon */}
                 <Eye size={28} className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                {/* WhatsApp button */}
-                <a href={waMsg(i)} target="_blank" rel="noopener noreferrer"
+                <a href={waMsg(item.id)} target="_blank" rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
                   className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 flex items-center gap-1.5 bg-[#25D366] text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg whitespace-nowrap"
                   style={{ fontFamily: font }}>
@@ -118,7 +121,7 @@ export default function GallerySection() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* Lightbox */}
@@ -147,7 +150,7 @@ export default function GallerySection() {
             <button
               onClick={(e) => { e.stopPropagation(); setLightbox(p => p !== null ? (p + 1) % filtered.length : 0); }}
               className="absolute right-5 text-white/60 hover:text-white p-3 z-10 text-3xl">›</button>
-            <a href={waMsg(lightbox)} target="_blank" rel="noopener noreferrer"
+            <a href={waMsg(filtered[lightbox]?.id ?? '')} target="_blank" rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#25D366] text-white font-semibold px-6 py-3 rounded-full shadow-xl z-10 text-sm hover:bg-[#1fb855] transition-colors"
               style={{ fontFamily: font }}>
