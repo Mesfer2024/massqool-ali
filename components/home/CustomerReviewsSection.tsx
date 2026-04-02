@@ -1,10 +1,12 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Upload, X } from 'lucide-react';
+import { Star, Upload, X, Pencil, Trash2 } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
 import { useReviews } from '@/context/ReviewsContext';
 import DataUrlImg from '@/components/ui/DataUrlImg';
+
+const MY_REVIEWS_KEY = 'masqool-my-review-ids';
 
 /* ─── Star picker ─── */
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -58,7 +60,7 @@ function compressImage(file: File): Promise<string> {
 }
 
 /* ─── Photo card with hover overlay ─── */
-function PhotoCard({ review, lang, font }: { review: import('@/types/review').Review; lang: 'ar' | 'en'; font: string }) {
+function PhotoCard({ review, lang, font, isOwner, onEdit, onDelete }: { review: import('@/types/review').Review; lang: 'ar' | 'en'; font: string; isOwner?: boolean; onEdit?: () => void; onDelete?: () => void }) {
   const [hovered, setHovered] = useState(false);
   return (
     <motion.div
@@ -72,37 +74,36 @@ function PhotoCard({ review, lang, font }: { review: import('@/types/review').Re
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
-      {/* Photo */}
       {review.photoDataUrl && (
         <DataUrlImg src={review.photoDataUrl} alt={review.name} className="w-full h-auto block object-cover transition-transform duration-500 group-hover:scale-105" />
       )}
 
-      {/* Hover overlay */}
       <AnimatePresence>
         {hovered && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex flex-col justify-between p-5"
           >
-            {/* Stars */}
             <div className="flex gap-0.5">
               {[1,2,3,4,5].map((n) => (
                 <Star key={n} size={14} className={n <= review.rating ? 'fill-[#C4956A] text-[#C4956A]' : 'fill-transparent text-white/20'} />
               ))}
             </div>
-
-            {/* Review text */}
             <p className="text-white text-sm leading-relaxed line-clamp-5 flex-1 my-4" style={{ fontFamily: font }}>
               {review.text}
             </p>
-
-            {/* Name + time */}
             <div className="flex items-center justify-between">
               <span className="text-[#C4956A] font-semibold text-sm" style={{ fontFamily: font }}>{review.name}</span>
-              <span className="text-white/40 text-xs"><RelativeTime iso={review.createdAt} lang={lang} /></span>
+              <div className="flex items-center gap-2">
+                <span className="text-white/40 text-xs"><RelativeTime iso={review.createdAt} lang={lang} /></span>
+                {isOwner && (
+                  <>
+                    <button onClick={(e) => { e.stopPropagation(); onEdit?.(); }} className="text-white/40 hover:text-[#C4956A] transition-colors"><Pencil size={13} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); onDelete?.(); }} className="text-white/40 hover:text-red-400 transition-colors"><Trash2 size={13} /></button>
+                  </>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
@@ -112,7 +113,7 @@ function PhotoCard({ review, lang, font }: { review: import('@/types/review').Re
 }
 
 /* ─── Text-only card (no photo) ─── */
-function TextCard({ review, lang, font }: { review: import('@/types/review').Review; lang: 'ar' | 'en'; font: string }) {
+function TextCard({ review, lang, font, isOwner, onEdit, onDelete }: { review: import('@/types/review').Review; lang: 'ar' | 'en'; font: string; isOwner?: boolean; onEdit?: () => void; onDelete?: () => void }) {
   return (
     <motion.div
       className="rounded-2xl bg-white/5 border border-white/10 hover:border-[#C4956A]/40 transition-colors duration-300 flex flex-col justify-between p-5 break-inside-avoid min-h-[180px]"
@@ -136,7 +137,15 @@ function TextCard({ review, lang, font }: { review: import('@/types/review').Rev
           </div>
           <span className="text-white/80 text-sm font-semibold" style={{ fontFamily: font }}>{review.name}</span>
         </div>
-        <span className="text-white/30 text-xs"><RelativeTime iso={review.createdAt} lang={lang} /></span>
+        <div className="flex items-center gap-2">
+          <span className="text-white/30 text-xs"><RelativeTime iso={review.createdAt} lang={lang} /></span>
+          {isOwner && (
+            <>
+              <button onClick={() => onEdit?.()} className="text-white/40 hover:text-[#C4956A] transition-colors"><Pencil size={13} /></button>
+              <button onClick={() => onDelete?.()} className="text-white/40 hover:text-red-400 transition-colors"><Trash2 size={13} /></button>
+            </>
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -145,7 +154,7 @@ function TextCard({ review, lang, font }: { review: import('@/types/review').Rev
 /* ─── Main section ─── */
 export default function CustomerReviewsSection() {
   const { lang, t } = useLang();
-  const { reviews, addReview } = useReviews();
+  const { reviews, addReview, updateReview, deleteReview } = useReviews();
   const font = lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif";
   const headlineFont = lang === 'ar' ? "'Cairo', sans-serif" : "var(--font-cormorant), Georgia, serif";
 
@@ -155,7 +164,22 @@ export default function CustomerReviewsSection() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [myReviewIds, setMyReviewIds] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Load owned review IDs from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(MY_REVIEWS_KEY);
+      if (stored) setMyReviewIds(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  const saveMyIds = (ids: string[]) => {
+    setMyReviewIds(ids);
+    localStorage.setItem(MY_REVIEWS_KEY, JSON.stringify(ids));
+  };
 
   const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -170,10 +194,33 @@ export default function CustomerReviewsSection() {
     e.preventDefault();
     if (rating === 0) { setError(t('reviews.ratingRequired')); return; }
     if (!name.trim() || !text.trim()) return;
-    addReview({ name: name.trim(), text: text.trim(), rating, photoDataUrl: photo ?? undefined });
+
+    if (editingId) {
+      updateReview(editingId, { name: name.trim(), text: text.trim(), rating, photoDataUrl: photo ?? undefined });
+      setEditingId(null);
+    } else {
+      const id = addReview({ name: name.trim(), text: text.trim(), rating, photoDataUrl: photo ?? undefined });
+      saveMyIds([...myReviewIds, id]);
+    }
     setName(''); setText(''); setRating(0); setPhoto(null); setError('');
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
+  };
+
+  const handleEdit = (review: import('@/types/review').Review) => {
+    setEditingId(review.id);
+    setName(review.name);
+    setText(review.text);
+    setRating(review.rating);
+    setPhoto(review.photoDataUrl ?? null);
+    setSuccess(false);
+    // Scroll to form
+    document.getElementById('review-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleDelete = (id: string) => {
+    deleteReview(id);
+    saveMyIds(myReviewIds.filter(rid => rid !== id));
   };
 
   return (
@@ -199,8 +246,8 @@ export default function CustomerReviewsSection() {
           <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 mb-16 space-y-3">
             {reviews.map((review) =>
               review.photoDataUrl
-                ? <PhotoCard key={review.id} review={review} lang={lang} font={font} />
-                : <TextCard  key={review.id} review={review} lang={lang} font={font} />
+                ? <PhotoCard key={review.id} review={review} lang={lang} font={font} isOwner={myReviewIds.includes(review.id)} onEdit={() => handleEdit(review)} onDelete={() => handleDelete(review.id)} />
+                : <TextCard  key={review.id} review={review} lang={lang} font={font} isOwner={myReviewIds.includes(review.id)} onEdit={() => handleEdit(review)} onDelete={() => handleDelete(review.id)} />
             )}
           </div>
         )}
@@ -219,7 +266,7 @@ export default function CustomerReviewsSection() {
             viewport={{ once: true }} transition={{ duration: 0.7 }}
             className="w-full max-w-xl"
           >
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8" id="review-form">
               {success ? (
                 <div className="text-center py-10">
                   <div className="w-16 h-16 rounded-full bg-[#C4956A]/20 flex items-center justify-center mx-auto mb-4">
@@ -278,8 +325,15 @@ export default function CustomerReviewsSection() {
                   <button type="submit"
                     className="w-full bg-[#C4956A] hover:bg-[#8B6245] text-white font-bold py-4 rounded-xl transition-colors duration-300 text-sm tracking-wide"
                     style={{ fontFamily: font }}>
-                    {t('reviews.submit')}
+                    {editingId ? (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes') : t('reviews.submit')}
                   </button>
+                  {editingId && (
+                    <button type="button" onClick={() => { setEditingId(null); setName(''); setText(''); setRating(0); setPhoto(null); }}
+                      className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition-colors duration-300 text-sm mt-2"
+                      style={{ fontFamily: font }}>
+                      {lang === 'ar' ? 'إلغاء التعديل' : 'Cancel Edit'}
+                    </button>
+                  )}
                 </form>
               )}
             </div>

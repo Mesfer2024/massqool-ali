@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useReviews } from '@/context/ReviewsContext';
 import { Review } from '@/types/review';
-import { Star, Trash2, LogOut } from 'lucide-react';
+import { Star, Trash2, LogOut, Pencil, X, Check } from 'lucide-react';
 import DataUrlImg from '@/components/ui/DataUrlImg';
 
 function StarDisplay({ rating }: { rating: number }) {
@@ -29,8 +29,11 @@ function ConfirmDelete({ onConfirm, onCancel }: { onConfirm: () => void; onCance
 
 export default function AdminReviewsPage() {
   const router = useRouter();
-  const { reviews, deleteReview } = useReviews();
+  const { reviews, deleteReview, updateReview } = useReviews();
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+  const [editRating, setEditRating] = useState(0);
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
@@ -50,6 +53,19 @@ export default function AdminReviewsPage() {
   const handleDelete = (id: string) => {
     deleteReview(id);
     setConfirmId(null);
+  };
+
+  const startEdit = (review: Review) => {
+    setEditId(review.id);
+    setEditText(review.text);
+    setEditRating(review.rating);
+  };
+
+  const saveEdit = () => {
+    if (editId && editText.trim()) {
+      updateReview(editId, { text: editText.trim(), rating: editRating });
+      setEditId(null);
+    }
   };
 
   if (!authorized) return null;
@@ -115,26 +131,61 @@ export default function AdminReviewsPage() {
                       {new Date(review.createdAt).toLocaleDateString('ar-SA')}
                     </span>
                   </div>
-                  <StarDisplay rating={review.rating} />
-                  <p className="text-white/60 text-sm mt-2 leading-relaxed">{review.text}</p>
 
-                  {/* Delete action */}
-                  <div className="mt-3">
-                    {confirmId === review.id ? (
-                      <ConfirmDelete
-                        onConfirm={() => handleDelete(review.id)}
-                        onCancel={() => setConfirmId(null)}
-                      />
-                    ) : (
-                      <button
-                        onClick={() => setConfirmId(review.id)}
-                        className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 transition-colors"
-                      >
-                        <Trash2 size={13} />
-                        حذف التعليق
-                      </button>
-                    )}
-                  </div>
+                  {editId === review.id ? (
+                    <div className="flex flex-col gap-3 mt-2">
+                      {/* Edit rating */}
+                      <div className="flex gap-1">
+                        {[1,2,3,4,5].map((n) => (
+                          <button key={n} onClick={() => setEditRating(n)}>
+                            <Star size={16} className={n <= editRating ? 'fill-[#C4956A] text-[#C4956A]' : 'fill-transparent text-white/20'} />
+                          </button>
+                        ))}
+                      </div>
+                      {/* Edit text */}
+                      <textarea value={editText} onChange={e => setEditText(e.target.value)} rows={3}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#C4956A] resize-none"
+                        style={{ fontFamily: "'Cairo', sans-serif" }} />
+                      <div className="flex gap-2">
+                        <button onClick={saveEdit}
+                          className="flex items-center gap-1 text-xs text-[#C4956A] hover:text-white bg-[#C4956A]/20 hover:bg-[#C4956A] px-3 py-1.5 rounded-lg transition-colors">
+                          <Check size={13} /> حفظ
+                        </button>
+                        <button onClick={() => setEditId(null)}
+                          className="flex items-center gap-1 text-xs text-white/50 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors">
+                          <X size={13} /> إلغاء
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <StarDisplay rating={review.rating} />
+                      <p className="text-white/60 text-sm mt-2 leading-relaxed">{review.text}</p>
+
+                      {/* Actions */}
+                      <div className="mt-3 flex items-center gap-2">
+                        <button
+                          onClick={() => startEdit(review)}
+                          className="flex items-center gap-1.5 text-xs text-[#C4956A] hover:text-[#C4956A]/80 transition-colors"
+                        >
+                          <Pencil size={13} /> تعديل
+                        </button>
+                        {confirmId === review.id ? (
+                          <ConfirmDelete
+                            onConfirm={() => handleDelete(review.id)}
+                            onCancel={() => setConfirmId(null)}
+                          />
+                        ) : (
+                          <button
+                            onClick={() => setConfirmId(review.id)}
+                            className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 transition-colors"
+                          >
+                            <Trash2 size={13} /> حذف
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ))}

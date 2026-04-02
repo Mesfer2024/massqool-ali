@@ -4,13 +4,15 @@ import { Review } from '@/types/review';
 
 interface ReviewsContextValue {
   reviews: Review[];
-  addReview: (review: Omit<Review, 'id' | 'createdAt'>) => void;
+  addReview: (review: Omit<Review, 'id' | 'createdAt'>) => string;
+  updateReview: (id: string, data: Partial<Omit<Review, 'id' | 'createdAt'>>) => void;
   deleteReview: (id: string) => void;
 }
 
 const ReviewsContext = createContext<ReviewsContextValue>({
   reviews: [],
-  addReview: () => {},
+  addReview: () => '',
+  updateReview: () => {},
   deleteReview: () => {},
 });
 
@@ -31,20 +33,26 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('masqool-reviews', JSON.stringify(reviews));
   }, [reviews, isInitialized]);
 
-  const addReview = (data: Omit<Review, 'id' | 'createdAt'>) => {
+  const addReview = (data: Omit<Review, 'id' | 'createdAt'>): string => {
+    const id = crypto.randomUUID();
     const review: Review = {
       ...data,
-      id: crypto.randomUUID(),
+      id,
       createdAt: new Date().toISOString(),
     };
     setReviews((prev) => [review, ...prev]);
+    return id;
+  };
+
+  const updateReview = (id: string, data: Partial<Omit<Review, 'id' | 'createdAt'>>) => {
+    setReviews((prev) => prev.map(r => r.id === id ? { ...r, ...data } : r));
   };
 
   const deleteReview = (id: string) =>
     setReviews((prev) => prev.filter((r) => r.id !== id));
 
   return (
-    <ReviewsContext.Provider value={{ reviews, addReview, deleteReview }}>
+    <ReviewsContext.Provider value={{ reviews, addReview, updateReview, deleteReview }}>
       {children}
     </ReviewsContext.Provider>
   );
