@@ -38,6 +38,12 @@ export const metadata: Metadata = {
   title: "مصقول | Massqool — فن خشبي يُصنع ليبقى",
   description: "مصقول — فن خشبي يدوي الصنع لمساحات خالدة. ساعات حائط، مصابيح، طاولات، وقطع فنية حصرية.",
   keywords: "مصقول, خشب, حرفي, ساعة حائط, مصباح, طاولة جانبية, فن خشبي, Massqool, wood art, handcrafted",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Massqool",
+  },
   openGraph: {
     title: "مصقول | Massqool",
     description: "فن خشبي يُصنع ليبقى",
@@ -53,7 +59,11 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`h-full antialiased ${cormorant.variable} ${cairo.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#C4956A" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('masqool-theme');var d=t?t==='dark':true;if(d)document.documentElement.classList.add('dark')})()` }} />
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js')})}` }} />
       </head>
       <body className="min-h-full flex flex-col bg-cream text-ink dark:bg-[#1A1714] dark:text-[#E8E2D9]" suppressHydrationWarning>
         <ThemeProvider>

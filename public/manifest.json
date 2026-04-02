@@ -1,0 +1,31 @@
+{
+  "name": "مصقول | Massqool",
+  "short_name": "Massqool",
+  "description": "فن خشبي يُصنع ليبقى — ساعات حائط، مصابيح، طاولات، وقطع فنية حصرية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D0C0A",
+  "theme_color": "#C4956A",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
