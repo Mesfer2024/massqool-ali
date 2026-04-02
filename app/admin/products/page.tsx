@@ -58,7 +58,7 @@ const emptyForm = (): Omit<Product, 'id'> => ({
   isSold: false,
   dimensions: { ar: '', en: '' },
   isPlaceholderDimensions: true,
-  materials: '',
+  materials: 'خشب طبيعي أكاسيا',
   whatsappInquiryText: '',
 });
 
