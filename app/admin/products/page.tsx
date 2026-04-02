@@ -132,11 +132,9 @@ export default function AdminProductsPage() {
   const validate = (): string[] => {
     const errs: string[] = [];
     if (!form.nameAr.trim()) errs.push('الاسم بالعربية مطلوب');
-    if (!form.nameEn.trim()) errs.push('الاسم بالإنجليزية مطلوب');
-    if (form.price <= 0) errs.push('السعر يجب أن يكون أكبر من صفر');
+    if (form.price < 0) errs.push('السعر يجب أن يكون صفر أو أكبر');
     if (form.images.length === 0) errs.push('يجب إضافة صورة واحدة على الأقل');
     if (!form.descriptionAr.trim()) errs.push('الوصف بالعربية مطلوب');
-    if (!form.descriptionEn.trim()) errs.push('الوصف بالإنجليزية مطلوب');
     if (!form.whatsappInquiryText.trim()) errs.push('نص رسالة واتساب مطلوب');
     return errs;
   };
@@ -145,7 +143,7 @@ export default function AdminProductsPage() {
     const errs = validate();
     if (errs.length > 0) { setErrors(errs); return; }
 
-    let slug = slugify(form.nameEn);
+    let slug = slugify(form.nameEn || form.nameAr);
     // Ensure unique slug
     const existing = products.find(p => p.slug === slug && p.id !== editingId);
     if (existing) {
@@ -220,7 +218,7 @@ export default function AdminProductsPage() {
                 placeholder="ساعة الصحراء" style={{ fontFamily: font }} />
             </div>
             <div>
-              <label className="text-white/60 text-sm mb-2 block">الاسم بالإنجليزية *</label>
+              <label className="text-white/60 text-sm mb-2 block">الاسم بالإنجليزية (اختياري)</label>
               <input value={form.nameEn} onChange={e => setForm(f => ({ ...f, nameEn: e.target.value }))}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-[#C4956A] text-sm"
                 placeholder="Sahara Wall Clock" style={{ fontFamily: font }} />
@@ -261,7 +259,7 @@ export default function AdminProductsPage() {
               placeholder="وصف المنتج بالعربية..." style={{ fontFamily: font }} />
           </div>
           <div>
-            <label className="text-white/60 text-sm mb-2 block">الوصف بالإنجليزية *</label>
+            <label className="text-white/60 text-sm mb-2 block">الوصف بالإنجليزية (اختياري)</label>
             <textarea value={form.descriptionEn} onChange={e => setForm(f => ({ ...f, descriptionEn: e.target.value }))} rows={3}
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-[#C4956A] text-sm resize-none"
               placeholder="Product description in English..." style={{ fontFamily: font }} />
