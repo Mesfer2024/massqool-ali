@@ -20,6 +20,7 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
+      console.log('ENV user:', JSON.stringify(ADMIN_USERNAME), 'ENV pass length:', ADMIN_PASSWORD.length, 'Input user:', JSON.stringify(username), 'Input pass length:', password.length);
       if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         localStorage.setItem('admin-auth', 'true');
         window.dispatchEvent(new Event('admin-auth-change'));
