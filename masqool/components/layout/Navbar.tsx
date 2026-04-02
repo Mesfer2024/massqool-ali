@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu, X, Sun, Moon, Settings } from 'lucide-react';
+import { ShoppingBag, Menu, X, Sun, Moon, Shield } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 import { useLang } from '@/context/LanguageContext';
 import { useCart } from '@/context/CartContext';
@@ -115,10 +115,11 @@ export default function Navbar() {
             {/* Admin */}
             <Link
               href={isAdmin ? '/admin/products' : '/admin'}
+              prefetch={false}
               className="p-2 rounded transition-colors duration-300 text-white hover:text-[#C4956A]"
               aria-label="Admin"
             >
-              <Settings size={18} />
+              <Shield size={18} />
             </Link>
 
             {/* Cart */}
