@@ -6,6 +6,9 @@ export interface GalleryItem {
   src: string;
   category: string;
   isSold?: boolean;
+  nameAr?: string;
+  nameEn?: string;
+  price?: number;
 }
 
 export interface GalleryCategory {
@@ -64,9 +67,10 @@ const DEFAULT_IMAGES: GalleryItem[] = [
 interface GalleryContextValue {
   items: GalleryItem[];
   categories: GalleryCategory[];
-  addItem: (src: string, category: string) => void;
+  addItem: (src: string, category: string, extra?: { nameAr?: string; nameEn?: string; price?: number }) => void;
   removeItem: (id: string) => void;
   updateItemCategory: (id: string, category: string) => void;
+  updateItem: (id: string, data: Partial<GalleryItem>) => void;
   addCategory: (cat: Omit<GalleryCategory, 'key'>) => void;
   removeCategory: (key: string) => void;
   updateItemSold: (id: string, isSold: boolean) => void;
@@ -78,6 +82,7 @@ const GalleryContext = createContext<GalleryContextValue>({
   addItem: () => {},
   removeItem: () => {},
   updateItemCategory: () => {},
+  updateItem: () => {},
   addCategory: () => {},
   removeCategory: () => {},
   updateItemSold: () => {},
@@ -97,15 +102,26 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {});
   }, []);
 
-  const addItem = useCallback(async (src: string, category: string) => {
+  const addItem = useCallback(async (src: string, category: string, extra?: { nameAr?: string; nameEn?: string; price?: number }) => {
     const tempId = crypto.randomUUID();
-    setItems(prev => [{ id: tempId, src, category }, ...prev]);
+    setItems(prev => [{ id: tempId, src, category, ...extra }, ...prev]);
 
     const uploadedSrc = await uploadToBlob(src);
     const res = await fetch('/api/gallery', {
       method: 'POST',
       headers: adminHeaders(),
-      body: JSON.stringify({ action: 'addItem', src: uploadedSrc, category }),
+      body: JSON.stringify({ action: 'addItem', src: uploadedSrc, category, ...extra }),
+    });
+    const data = await res.json();
+    if (data.items) setItems(data.items);
+  }, []);
+
+  const updateItem = useCallback(async (id: string, updates: Partial<GalleryItem>) => {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
+    const res = await fetch('/api/gallery', {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify({ action: 'updateItem', id, ...updates }),
     });
     const data = await res.json();
     if (data.items) setItems(data.items);
@@ -170,7 +186,7 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <GalleryContext.Provider value={{ items, categories, addItem, removeItem, updateItemCategory, addCategory, removeCategory, updateItemSold }}>
+    <GalleryContext.Provider value={{ items, categories, addItem, removeItem, updateItemCategory, updateItem, addCategory, removeCategory, updateItemSold }}>
       {children}
     </GalleryContext.Provider>
   );

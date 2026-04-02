@@ -44,11 +44,14 @@ export default function GallerySection() {
     ? items
     : items.filter(i => i.category === activeCategory);
 
-  const waMsg = (id: string) =>
-    `${waBase}?text=${encodeURIComponent(lang === 'ar'
-      ? `مرحباً، أود الاستفسار عن القطعة ${id} في المعرض`
-      : `Hello, I'm interested in gallery piece ${id}`)}`;
-
+  const waMsg = (item: typeof items[0]) => {
+    const name = lang === 'ar' ? (item.nameAr || '') : (item.nameEn || item.nameAr || '');
+    const imgUrl = item.src.startsWith('/') ? '' : item.src;
+    const text = lang === 'ar'
+      ? `مرحباً، أود الاستفسار عن ${name || 'هذه القطعة'} في المعرض${imgUrl ? '\n' + imgUrl : ''}`
+      : `Hello, I'm interested in ${name || 'this piece'} from the gallery${imgUrl ? '\n' + imgUrl : ''}`;
+    return `${waBase}?text=${encodeURIComponent(text)}`;
+  };
   const goNext = useCallback(() => {
     setLightbox(p => p !== null ? (p + 1) % filtered.length : 0);
   }, [filtered.length]);
@@ -249,21 +252,43 @@ export default function GallerySection() {
               </div>
             )}
 
-            {/* CTA */}
-            <div className="flex justify-center px-5 pb-6 flex-shrink-0" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
+            {/* Item info + CTA */}
+            <div className="flex flex-col items-center gap-3 px-5 pb-6 flex-shrink-0" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
+              {/* Name & Price */}
+              {(filtered[lightbox].nameAr || filtered[lightbox].nameEn || filtered[lightbox].price) && (
+                <div className="text-center">
+                  {(filtered[lightbox].nameAr || filtered[lightbox].nameEn) && (
+                    <p className="text-white text-base font-semibold" style={{ fontFamily: font }}>
+                      {lang === 'ar' ? (filtered[lightbox].nameAr || filtered[lightbox].nameEn) : (filtered[lightbox].nameEn || filtered[lightbox].nameAr)}
+                    </p>
+                  )}
+                  {filtered[lightbox].price != null && filtered[lightbox].price! > 0 && (
+                    <p className="text-[#C4956A] text-sm font-bold mt-1" style={{ fontFamily: font }}>
+                      {filtered[lightbox].price!.toLocaleString()} {lang === 'ar' ? 'ريال' : 'SAR'}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Sold badge or inquiry button */}
               {filtered[lightbox].isSold ? (
-                <a
-                  href={waMsg(filtered[lightbox].id)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="border border-white/10 text-white/30 text-sm tracking-wide px-6 py-3 rounded-full transition-all duration-300 hover:border-white/30 hover:text-white/50"
-                  style={{ fontFamily: font }}
-                >
-                  {lang === 'ar' ? 'تواصل معنا لقطعة مشابهة' : 'Contact us for a similar piece'}
-                </a>
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-orange-400 text-xs font-bold tracking-wide" style={{ fontFamily: font }}>
+                    {lang === 'ar' ? '✓ تم البيع' : '✓ Sold'}
+                  </span>
+                  <a
+                    href={waMsg(filtered[lightbox])}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border border-white/10 text-white/30 text-sm tracking-wide px-6 py-3 rounded-full transition-all duration-300 hover:border-white/30 hover:text-white/50"
+                    style={{ fontFamily: font }}
+                  >
+                    {lang === 'ar' ? 'تواصل معنا لقطعة مشابهة' : 'Contact us for a similar piece'}
+                  </a>
+                </div>
               ) : (
                 <a
-                  href={waMsg(filtered[lightbox].id)}
+                  href={waMsg(filtered[lightbox])}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="border border-white/20 text-white/70 text-sm tracking-wide px-6 py-3 rounded-full transition-all duration-300 hover:border-white/50 hover:text-white"

@@ -8,6 +8,9 @@ interface GalleryItem {
   src: string;
   category: string;
   isSold?: boolean;
+  nameAr?: string;
+  nameEn?: string;
+  price?: number;
 }
 
 interface GalleryCategory {

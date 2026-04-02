@@ -34,13 +34,16 @@ const font = "'Cairo', sans-serif";
 
 export default function AdminGalleryPage() {
   const router = useRouter();
-  const { items, categories, addItem, removeItem, updateItemCategory, addCategory, removeCategory, updateItemSold } = useGallery();
+  const { items, categories, addItem, removeItem, updateItemCategory, updateItem, addCategory, removeCategory, updateItemSold } = useGallery();
   const [authorized, setAuthorized] = useState(false);
 
   // Upload state
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [uploadNameAr, setUploadNameAr] = useState('');
+  const [uploadNameEn, setUploadNameEn] = useState('');
+  const [uploadPrice, setUploadPrice] = useState('');
 
   // New category form
   const [showCatForm, setShowCatForm] = useState(false);
@@ -57,13 +60,19 @@ export default function AdminGalleryPage() {
   const handleFiles = async (files: FileList | null) => {
     if (!files) return;
     setUploading(true);
+    const extra = {
+      nameAr: uploadNameAr.trim() || undefined,
+      nameEn: uploadNameEn.trim() || undefined,
+      price: uploadPrice ? Number(uploadPrice) : undefined,
+    };
     for (const file of Array.from(files)) {
       if (!file.type.startsWith('image/')) continue;
       if (file.size > 10 * 1024 * 1024) continue;
       const compressed = await compressImage(file);
-      addItem(compressed, selectedCategory);
+      addItem(compressed, selectedCategory, extra);
     }
     setUploading(false);
+    setUploadNameAr(''); setUploadNameEn(''); setUploadPrice('');
   };
 
   const handleAddCategory = () => {
@@ -153,16 +162,39 @@ export default function AdminGalleryPage() {
           <h2 className="font-semibold flex items-center gap-2 text-lg mb-4"><Upload size={16} /> رفع صور جديدة</h2>
 
           {/* Category selector for upload */}
-          <div className="mb-4">
-            <label className="text-white/50 text-sm mb-2 block">التصنيف (اختياري)</label>
-            <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}
-              className="border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#C4956A]"
-              style={{ fontFamily: font, backgroundColor: '#1a1a1a', color: '#fff' }}>
-              <option value="">بدون تصنيف</option>
-              {categories.map((cat: GalleryCategory) => (
-                <option key={cat.key} value={cat.key}>{cat.labelAr}</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">التصنيف</label>
+              <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}
+                className="w-full border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#C4956A]"
+                style={{ fontFamily: font, backgroundColor: '#1a1a1a', color: '#fff' }}>
+                <option value="">بدون تصنيف</option>
+                {categories.map((cat: GalleryCategory) => (
+                  <option key={cat.key} value={cat.key}>{cat.labelAr}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">اسم القطعة (عربي)</label>
+              <input value={uploadNameAr} onChange={e => setUploadNameAr(e.target.value)}
+                placeholder="مثال: تحفة خشبية"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]"
+                style={{ fontFamily: font }} />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">اسم القطعة (English)</label>
+              <input value={uploadNameEn} onChange={e => setUploadNameEn(e.target.value)}
+                placeholder="e.g. Wooden Sculpture"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]"
+                style={{ fontFamily: font }} />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">السعر (ريال)</label>
+              <input type="text" inputMode="numeric" value={uploadPrice} onChange={e => setUploadPrice(e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="650"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]"
+                style={{ fontFamily: font }} />
+            </div>
           </div>
 
           {/* Drop zone */}
@@ -227,6 +259,11 @@ export default function AdminGalleryPage() {
                 {item.category && (
                   <div className="absolute top-1.5 right-1.5 bg-[#C4956A]/80 text-white text-[10px] px-2 py-0.5 rounded-full">
                     {categories.find(c => c.key === item.category)?.labelAr ?? ''}
+                  </div>
+                )}
+                {item.nameAr && (
+                  <div className="absolute bottom-7 right-1.5 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full max-w-[90%] truncate">
+                    {item.nameAr}{item.price ? ` • ${item.price} ريال` : ''}
                   </div>
                 )}
                 {item.isSold && (

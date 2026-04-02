@@ -19,8 +19,17 @@ export async function POST(request: Request) {
 
   if (action === 'addItem') {
     const items = await getGalleryItems();
-    const newItem = { id: crypto.randomUUID(), src: body.src, category: body.category || '' };
+    const newItem = { id: crypto.randomUUID(), src: body.src, category: body.category || '', nameAr: body.nameAr, nameEn: body.nameEn, price: body.price };
     const updated = [newItem, ...items];
+    await setGalleryItems(updated);
+    return Response.json({ ok: true, items: updated });
+  }
+
+  if (action === 'updateItem') {
+    const items = await getGalleryItems();
+    const { id, ...updates } = body;
+    delete updates.action;
+    const updated = items.map(i => i.id === id ? { ...i, ...updates } : i);
     await setGalleryItems(updated);
     return Response.json({ ok: true, items: updated });
   }
