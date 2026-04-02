@@ -1,7 +1,7 @@
 ﻿import { Product } from '@/types/product';
 
-export const WHATSAPP_NUMBER = '+966565858605';
-export const WHATSAPP_DISPLAY = '0565858605';
+export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '+966565858605';
+export const WHATSAPP_DISPLAY = process.env.NEXT_PUBLIC_WHATSAPP_DISPLAY ?? '0565858605';
 
 export const products: Product[] = [
   {

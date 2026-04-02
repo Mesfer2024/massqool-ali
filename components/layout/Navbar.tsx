@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu, X, Sun, Moon } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { ShoppingBag, Menu, X, Sun, Moon, Shield } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 import { useLang } from '@/context/LanguageContext';
 import { useCart } from '@/context/CartContext';
@@ -17,19 +18,33 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const { t, toggleLang, lang } = useLang();
   const { itemCount, openCart } = useCart();
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
+
+    const checkAdmin = () => setIsAdmin(localStorage.getItem('admin-auth') === 'true');
+    checkAdmin();
+    window.addEventListener('storage', checkAdmin);
+    window.addEventListener('admin-auth-change', checkAdmin);
+    return () => {
+      window.removeEventListener('scroll', handler);
+      window.removeEventListener('storage', checkAdmin);
+      window.removeEventListener('admin-auth-change', checkAdmin);
+    };
   }, []);
 
   const waHref = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}`;
+
+  // Hide navbar on admin pages
+  if (pathname.startsWith('/admin')) return null;
 
   return (
     <>
@@ -96,6 +111,16 @@ export default function Navbar() {
             >
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+
+            {/* Admin */}
+            <Link
+              href={isAdmin ? '/admin/products' : '/admin'}
+              prefetch={false}
+              className="p-2 rounded transition-colors duration-300 text-white hover:text-[#C4956A]"
+              aria-label="Admin"
+            >
+              <Shield size={18} />
+            </Link>
 
             {/* Cart */}
             <button

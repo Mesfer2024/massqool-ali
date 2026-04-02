@@ -3,10 +3,8 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLang } from '@/context/LanguageContext';
-import { products } from '@/data/products';
+import { useProducts } from '@/context/ProductsContext';
 import { WHATSAPP_NUMBER } from '@/data/products';
-
-const signaturePieces = products.filter((p) => p.isSignature).slice(0, 3);
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -15,6 +13,8 @@ const fadeUp = {
 
 export default function SignaturePieces() {
   const { t, lang } = useLang();
+  const { products } = useProducts();
+  const signaturePieces = products.filter((p) => p.isSignature).slice(0, 3);
   const headlineFont = lang === 'ar' ? "'Cairo', sans-serif" : "'Cormorant Garamond', serif";
   const bodyFont = lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif";
 

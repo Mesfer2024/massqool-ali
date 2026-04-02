@@ -1,11 +1,15 @@
 ﻿'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useLang } from '@/context/LanguageContext';
 import Logo from '@/components/ui/Logo';
 import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY } from '@/data/products';
 
 export default function Footer() {
+  const pathname = usePathname();
   const { t, lang } = useLang();
+
+  if (pathname.startsWith('/admin')) return null;
 
   const arabicFont = { fontFamily: "'Cairo', sans-serif" };
   const enFont = { fontFamily: "'Inter', sans-serif" };

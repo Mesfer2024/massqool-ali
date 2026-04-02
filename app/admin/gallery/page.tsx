@@ -52,7 +52,7 @@ export default function AdminGalleryPage() {
     else setAuthorized(true);
   }, [router]);
 
-  const handleLogout = () => { localStorage.removeItem('admin-auth'); router.push('/admin'); };
+  const handleLogout = () => { localStorage.removeItem('admin-auth'); window.dispatchEvent(new Event('admin-auth-change')); router.push('/admin'); };
 
   const handleFiles = async (files: FileList | null) => {
     if (!files) return;
@@ -84,6 +84,10 @@ export default function AdminGalleryPage() {
           <button onClick={() => router.push('/admin/reviews')}
             className="text-white/40 hover:text-white text-sm transition-colors">
             ← التعليقات
+          </button>
+          <button onClick={() => router.push('/admin/products')}
+            className="text-white/40 hover:text-white text-sm transition-colors">
+            المنتجات
           </button>
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2"><Images size={20} /> إدارة المعرض</h1>

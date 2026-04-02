@@ -1,10 +1,12 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { WHATSAPP_NUMBER } from '@/data/products';
 import { useLang } from '@/context/LanguageContext';
 
 export default function WhatsAppFloat() {
+  const pathname = usePathname();
   const { t } = useLang();
   const [visible, setVisible] = useState(false);
   const [tooltip, setTooltip] = useState(false);
@@ -15,6 +17,8 @@ export default function WhatsAppFloat() {
   }, []);
 
   const href = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${encodeURIComponent(t('wa.cta'))}`;
+
+  if (pathname.startsWith('/admin')) return null;
 
   return (
     <AnimatePresence>

@@ -43,6 +43,7 @@ export default function AdminReviewsPage() {
 
   const handleLogout = () => {
     localStorage.removeItem('admin-auth');
+    window.dispatchEvent(new Event('admin-auth-change'));
     router.push('/admin');
   };
 
@@ -62,6 +63,10 @@ export default function AdminReviewsPage() {
           <p className="text-white/40 text-sm mt-0.5">{reviews.length} تعليق</p>
         </div>
         <div className="flex items-center gap-3">
+          <button onClick={() => router.push('/admin/products')}
+            className="text-sm text-white/60 hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-white/5">
+            المنتجات
+          </button>
           <button onClick={() => router.push('/admin/gallery')}
             className="text-sm text-white/60 hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-white/5">
             المعرض
