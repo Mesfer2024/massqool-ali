@@ -12,6 +12,7 @@ export interface Product {
   descriptionEn: string;
   isSignature: boolean;
   isFeatured: boolean;
+  isSold?: boolean;
   dimensions?: { ar: string; en: string };
   isPlaceholderDimensions?: boolean;
   materials?: string;

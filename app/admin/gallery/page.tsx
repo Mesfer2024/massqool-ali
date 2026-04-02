@@ -34,7 +34,7 @@ const font = "'Cairo', sans-serif";
 
 export default function AdminGalleryPage() {
   const router = useRouter();
-  const { items, categories, addItem, removeItem, updateItemCategory, addCategory, removeCategory } = useGallery();
+  const { items, categories, addItem, removeItem, updateItemCategory, addCategory, removeCategory, updateItemSold } = useGallery();
   const [authorized, setAuthorized] = useState(false);
 
   // Upload state
@@ -212,6 +212,13 @@ export default function AdminGalleryPage() {
                       <option key={cat.key} value={cat.key}>{cat.labelAr}</option>
                     ))}
                   </select>
+                  {/* Sold toggle */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); updateItemSold(item.id, !item.isSold); }}
+                    className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition-colors ${item.isSold ? 'bg-orange-500/80 text-white hover:bg-orange-600' : 'bg-white/20 text-white/70 hover:bg-white/30'}`}
+                  >
+                    {item.isSold ? 'مباعة' : 'متاحة'}
+                  </button>
                   {/* Delete */}
                   <button onClick={() => removeItem(item.id)}
                     className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 bg-black/60 px-3 py-1.5 rounded-lg transition-colors">
@@ -223,6 +230,11 @@ export default function AdminGalleryPage() {
                 {item.category && (
                   <div className="absolute top-1.5 right-1.5 bg-[#C4956A]/80 text-white text-[10px] px-2 py-0.5 rounded-full">
                     {categories.find(c => c.key === item.category)?.labelAr ?? ''}
+                  </div>
+                )}
+                {item.isSold && (
+                  <div className="absolute bottom-1.5 left-1.5 bg-orange-500/80 text-white text-[10px] px-2 py-0.5 rounded-full">
+                    مباعة
                   </div>
                 )}
               </div>

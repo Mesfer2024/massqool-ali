@@ -55,6 +55,7 @@ const emptyForm = (): Omit<Product, 'id'> => ({
   descriptionEn: '',
   isSignature: false,
   isFeatured: true,
+  isSold: false,
   dimensions: { ar: '', en: '' },
   isPlaceholderDimensions: true,
   materials: '',
@@ -100,6 +101,7 @@ export default function AdminProductsPage() {
       descriptionEn: product.descriptionEn,
       isSignature: product.isSignature,
       isFeatured: product.isFeatured,
+      isSold: product.isSold ?? false,
       dimensions: product.dimensions ? { ...product.dimensions } : { ar: '', en: '' },
       isPlaceholderDimensions: product.isPlaceholderDimensions ?? true,
       materials: product.materials ?? '',
@@ -164,6 +166,7 @@ export default function AdminProductsPage() {
       descriptionEn: form.descriptionEn.trim(),
       isSignature: form.isSignature,
       isFeatured: form.isFeatured,
+      isSold: form.isSold,
       dimensions: (form.dimensions?.ar || form.dimensions?.en) ? form.dimensions : undefined,
       isPlaceholderDimensions: form.isPlaceholderDimensions,
       materials: form.materials?.trim() || undefined,
@@ -346,6 +349,11 @@ export default function AdminProductsPage() {
                 className="w-5 h-5 rounded bg-white/5 border border-white/20 accent-[#C4956A]" />
               <span className="text-sm text-white/70">الأبعاد تقريبية</span>
             </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" checked={form.isSold} onChange={e => setForm(f => ({ ...f, isSold: e.target.checked }))}
+                className="w-5 h-5 rounded bg-white/5 border border-white/20 accent-orange-500" />
+              <span className="text-sm text-orange-400 font-semibold">تم بيع هذه القطعة</span>
+            </label>
           </div>
 
           {/* Actions */}
@@ -427,6 +435,7 @@ export default function AdminProductsPage() {
                     <span>{product.price.toLocaleString()} ريال</span>
                     {product.isSignature && <span className="text-[#C4956A]">حصري</span>}
                     {product.isFeatured && <span className="text-green-400">مميز</span>}
+                    {product.isSold && <span className="text-orange-400 font-semibold">مباع</span>}
                   </div>
                 </div>
 

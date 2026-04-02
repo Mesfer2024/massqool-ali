@@ -74,6 +74,11 @@
   'product.materials': { ar: 'الخامات', en: 'Materials' },
   'product.related': { ar: 'قطع مشابهة', en: 'Related Pieces' },
 
+  // Sold
+  'sold.badge': { ar: 'تم البيع', en: 'Sold' },
+  'sold.message': { ar: 'تم بيع هذه القطعة', en: 'This piece has been sold' },
+  'sold.similarPiece': { ar: 'هل تريد قطعة مشابهة؟ تواصل معنا', en: 'Want a similar piece? Contact us' },
+
   // Cart
   'cart.title': { ar: 'سلة المشتريات', en: 'Cart' },
   'cart.empty': { ar: 'السلة فارغة', en: 'Cart is empty' },

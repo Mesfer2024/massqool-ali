@@ -5,6 +5,7 @@ export interface GalleryItem {
   id: string;
   src: string;        // /media/... or data:base64
   category: string;  // category key, '' = uncategorized
+  isSold?: boolean;
 }
 
 export interface GalleryCategory {
@@ -44,6 +45,7 @@ interface GalleryContextValue {
   updateItemCategory: (id: string, category: string) => void;
   addCategory: (cat: Omit<GalleryCategory, 'key'>) => void;
   removeCategory: (key: string) => void;
+  updateItemSold: (id: string, isSold: boolean) => void;
 }
 
 const GalleryContext = createContext<GalleryContextValue>({
@@ -54,6 +56,7 @@ const GalleryContext = createContext<GalleryContextValue>({
   updateItemCategory: () => {},
   addCategory: () => {},
   removeCategory: () => {},
+  updateItemSold: () => {},
 });
 
 export function GalleryProvider({ children }: { children: React.ReactNode }) {
@@ -104,8 +107,11 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
     setItems(prev => prev.map(i => i.category === key ? { ...i, category: '' } : i));
   };
 
+  const updateItemSold = (id: string, isSold: boolean) =>
+    setItems(prev => prev.map(i => i.id === id ? { ...i, isSold } : i));
+
   return (
-    <GalleryContext.Provider value={{ items, categories, addItem, removeItem, updateItemCategory, addCategory, removeCategory }}>
+    <GalleryContext.Provider value={{ items, categories, addItem, removeItem, updateItemCategory, addCategory, removeCategory, updateItemSold }}>
       {children}
     </GalleryContext.Provider>
   );
