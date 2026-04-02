@@ -1,4 +1,4 @@
-# توثيق موقع مصقول | Masqool Website Documentation
+# توثيق موقع مصقول | Massqool Website Documentation
 
 ---
 
@@ -22,58 +22,65 @@
 ## هيكل المشروع
 
 ```
-masqool/
-├── app/                          # صفحات التطبيق (App Router)
-│   ├── page.tsx                  # الصفحة الرئيسية
-│   ├── layout.tsx                # التخطيط العام (Providers + Fonts)
-│   ├── about/page.tsx            # صفحة من نحن
-│   ├── contact/page.tsx          # صفحة التواصل
-│   ├── custom-order/page.tsx     # صفحة الطلب المخصص
-│   ├── collections/              # صفحات التصنيفات
-│   │   ├── page.tsx              # جميع التصنيفات
-│   │   └── [category]/page.tsx   # تصنيف محدد (wall-clocks, lamps...)
-│   ├── products/
-│   │   └── [slug]/page.tsx       # صفحة تفاصيل المنتج
-│   └── admin/                    # لوحة الإدارة
-│       ├── page.tsx
-│       ├── gallery/page.tsx
-│       └── reviews/page.tsx
-│
-├── components/                   # المكونات
-│   ├── home/                     # مكونات الصفحة الرئيسية
-│   │   ├── HeroSection.tsx       # قسم الهيرو
-│   │   ├── GallerySection.tsx    # معرض المنتجات + فلترة
-│   │   ├── CraftsmanshipSection.tsx
-│   │   ├── BrandValuesSection.tsx
-│   │   ├── CustomerReviewsSection.tsx
-│   │   └── WhatsAppCTASection.tsx
-│   ├── layout/
-│   │   ├── Navbar.tsx            # شريط التنقل
-│   │   ├── Footer.tsx            # التذييل
-│   │   └── WhatsAppFloat.tsx     # زر واتساب العائم
-│   ├── product/
-│   │   └── ProductCard.tsx       # بطاقة المنتج
-│   ├── cart/
-│   │   └── CartDrawer.tsx        # درج عربة التسوق
-│   └── ui/                       # مكونات واجهة عامة
-│
-├── context/                      # React Contexts
-│   ├── LanguageContext.tsx        # إدارة اللغة (AR/EN)
-│   ├── ThemeContext.tsx           # إدارة الثيم
-│   ├── CartContext.tsx            # عربة التسوق
-│   ├── GalleryContext.tsx         # بيانات المعرض
-│   └── ReviewsContext.tsx         # التقييمات
-│
-├── data/
-│   ├── products.ts               # *** بيانات المنتجات (الأهم) ***
-│   └── translations.ts           # ترجمات النصوص
-│
-├── types/
-│   ├── product.ts                # أنواع TypeScript للمنتج
-│   └── review.ts                 # أنواع التقييمات
-│
-└── public/
-    └── media/images/             # صور المنتجات
+app/                              # صفحات التطبيق (App Router)
+├── page.tsx                      # الصفحة الرئيسية
+├── layout.tsx                    # التخطيط العام (Providers + Fonts)
+├── about/page.tsx                # صفحة من نحن
+├── contact/page.tsx              # صفحة التواصل
+├── custom-order/page.tsx         # صفحة الطلب المخصص
+├── collections/                  # صفحات التصنيفات
+│   ├── page.tsx                  # جميع التصنيفات
+│   └── [category]/page.tsx       # تصنيف محدد (wall-clocks, lamps...)
+├── products/
+│   └── [slug]/page.tsx           # صفحة تفاصيل المنتج
+└── admin/                        # لوحة الإدارة
+    ├── page.tsx                  # تسجيل الدخول
+    ├── products/page.tsx         # إدارة المنتجات
+    ├── gallery/page.tsx          # إدارة المعرض
+    └── reviews/page.tsx          # إدارة التقييمات
+
+components/                       # المكونات
+├── home/                         # مكونات الصفحة الرئيسية
+│   ├── HeroSection.tsx           # قسم الهيرو
+│   ├── GallerySection.tsx        # معرض المنتجات + فلترة
+│   ├── CraftsmanshipSection.tsx  # قسم الحرفية
+│   ├── BrandValuesSection.tsx    # قيم العلامة التجارية
+│   ├── CustomerReviewsSection.tsx # تقييمات العملاء
+│   ├── WhatsAppCTASection.tsx    # دعوة واتساب
+│   ├── CollectionsGrid.tsx       # شبكة التصنيفات
+│   ├── CustomOrderCTA.tsx        # دعوة الطلب المخصص
+│   └── SignaturePieces.tsx       # قطع التوقيع
+├── layout/
+│   ├── Navbar.tsx                # شريط التنقل
+│   ├── Footer.tsx                # التذييل
+│   └── WhatsAppFloat.tsx         # زر واتساب العائم
+├── product/
+│   └── ProductCard.tsx           # بطاقة المنتج
+├── cart/
+│   └── CartDrawer.tsx            # درج عربة التسوق
+└── ui/                           # مكونات واجهة عامة
+    ├── DataUrlImg.tsx            # عرض صور base64
+    ├── Logo.tsx                  # شعار الموقع
+    └── WhatsAppButton.tsx        # زر واتساب
+
+context/                          # React Contexts
+├── LanguageContext.tsx            # إدارة اللغة (AR/EN) + اتجاه RTL/LTR
+├── ThemeContext.tsx               # إدارة الثيم (داكن/فاتح)
+├── CartContext.tsx                # عربة التسوق
+├── ProductsContext.tsx            # بيانات المنتجات (CRUD عبر الأدمن)
+├── GalleryContext.tsx             # بيانات المعرض
+└── ReviewsContext.tsx             # التقييمات
+
+data/
+├── products.ts                   # *** بيانات المنتجات (الأهم) ***
+└── translations.ts               # ترجمات النصوص
+
+types/
+├── product.ts                    # أنواع TypeScript للمنتج
+└── review.ts                     # أنواع التقييمات
+
+public/
+└── media/images/                 # صور المنتجات
 ```
 
 ---

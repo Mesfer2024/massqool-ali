@@ -22,6 +22,7 @@ export default function AdminLoginPage() {
     setTimeout(() => {
       if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         localStorage.setItem('admin-auth', 'true');
+        localStorage.setItem('admin-secret', password);
         window.dispatchEvent(new Event('admin-auth-change'));
         router.push('/admin/products');
       } else {
