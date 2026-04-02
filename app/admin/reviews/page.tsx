@@ -73,27 +73,23 @@ export default function AdminReviewsPage() {
   return (
     <div className="min-h-screen bg-[#0D0C0A] text-white" style={{ fontFamily: "'Cairo', sans-serif" }}>
       {/* Header */}
-      <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">إدارة التعليقات</h1>
-          <p className="text-white/40 text-sm mt-0.5">{reviews.length} تعليق</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/admin/products')}
-            className="text-sm text-white/60 hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-white/5">
-            المنتجات
-          </button>
-          <button onClick={() => router.push('/admin/gallery')}
-            className="text-sm text-white/60 hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-white/5">
-            المعرض
-          </button>
+      <header className="border-b border-white/10 px-6 py-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold">إدارة التعليقات</h1>
+            <p className="text-white/40 text-sm mt-1">{reviews.length} تعليق</p>
+          </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-white/5"
+            className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors px-4 py-2.5 rounded-xl hover:bg-white/5"
           >
-            <LogOut size={16} />
-            خروج
+            <LogOut size={16} /> خروج
           </button>
+        </div>
+        <div className="flex items-center gap-1">
+          <button onClick={() => router.push('/admin/products')} className="text-sm px-4 py-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors">المنتجات</button>
+          <button onClick={() => router.push('/admin/gallery')} className="text-sm px-4 py-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors">المعرض</button>
+          <span className="text-sm px-4 py-2 bg-[#C4956A]/20 text-[#C4956A] rounded-lg font-bold">التعليقات</span>
         </div>
       </header>
 

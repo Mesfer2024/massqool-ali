@@ -373,28 +373,29 @@ export default function AdminProductsPage() {
   // ── List View ──
   return (
     <div className="min-h-screen bg-[#0D0C0A] text-white" style={{ fontFamily: font }}>
-      <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={() => router.push('/admin/reviews')} className="text-white/40 hover:text-white text-sm transition-colors">
-            ← التعليقات
-          </button>
-          <button onClick={() => router.push('/admin/gallery')} className="text-white/40 hover:text-white text-sm transition-colors">
-            المعرض →
-          </button>
+      <header className="border-b border-white/10 px-6 py-5">
+        {/* Top row: title + actions */}
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-bold flex items-center gap-2"><Package size={20} /> إدارة المنتجات</h1>
-            <p className="text-white/40 text-sm mt-0.5">{products.length} منتج</p>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><Package size={22} /> إدارة المنتجات</h1>
+            <p className="text-white/40 text-sm mt-1">{products.length} منتج</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={openAddForm}
+              className="flex items-center gap-1.5 text-sm px-5 py-2.5 bg-[#C4956A] hover:bg-[#8B6245] rounded-xl transition-colors font-bold">
+              <Plus size={16} /> إضافة منتج
+            </button>
+            <button onClick={handleLogout}
+              className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors px-4 py-2.5 rounded-xl hover:bg-white/5">
+              <LogOut size={16} /> خروج
+            </button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={openAddForm}
-            className="flex items-center gap-1.5 text-sm px-4 py-2 bg-[#C4956A] hover:bg-[#8B6245] rounded-xl transition-colors font-bold">
-            <Plus size={14} /> إضافة منتج
-          </button>
-          <button onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-white/5">
-            <LogOut size={16} /> خروج
-          </button>
+        {/* Navigation tabs */}
+        <div className="flex items-center gap-1">
+          <span className="text-sm px-4 py-2 bg-[#C4956A]/20 text-[#C4956A] rounded-lg font-bold">المنتجات</span>
+          <button onClick={() => router.push('/admin/gallery')} className="text-sm px-4 py-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors">المعرض</button>
+          <button onClick={() => router.push('/admin/reviews')} className="text-sm px-4 py-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors">التعليقات</button>
         </div>
       </header>
 
