@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGallery, GalleryCategory } from '@/context/GalleryContext';
-import { Trash2, LogOut, Upload, Plus, X, Images, Tag } from 'lucide-react';
+import { Trash2, LogOut, Upload, Plus, X, Images, Tag, Pencil, Check } from 'lucide-react';
 import DataUrlImg from '@/components/ui/DataUrlImg';
 import Image from 'next/image';
 
@@ -50,6 +50,28 @@ export default function AdminGalleryPage() {
   const [newCatAr, setNewCatAr] = useState('');
   const [newCatEn, setNewCatEn] = useState('');
 
+  // Edit item state
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editNameAr, setEditNameAr] = useState('');
+  const [editNameEn, setEditNameEn] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+
+  const startEdit = (item: typeof items[0]) => {
+    setEditingId(item.id);
+    setEditNameAr(item.nameAr || '');
+    setEditNameEn(item.nameEn || '');
+    setEditPrice(item.price ? String(item.price) : '');
+  };
+
+  const saveEdit = () => {
+    if (!editingId) return;
+    updateItem(editingId, {
+      nameAr: editNameAr.trim() || undefined,
+      nameEn: editNameEn.trim() || undefined,
+      price: editPrice ? Number(editPrice) : undefined,
+    });
+    setEditingId(null);
+  };
   useEffect(() => {
     if (localStorage.getItem('admin-auth') !== 'true') router.replace('/admin');
     else setAuthorized(true);
@@ -217,58 +239,80 @@ export default function AdminGalleryPage() {
         {/* ── Gallery grid ── */}
         <div>
           <h2 className="font-semibold flex items-center gap-2 text-lg mb-4"><Images size={16} /> الصور الحالية</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="flex flex-col gap-3">
             {items.map(item => (
-              <div key={item.id} className="relative group aspect-square rounded-xl overflow-hidden bg-white/5">
-                {item.src.startsWith('data:') ? (
-                  <DataUrlImg src={item.src} alt="gallery" className="w-full h-full object-cover" />
-                ) : (
-                  <Image src={item.src} alt="gallery" fill sizes="200px" className="object-cover" />
-                )}
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors duration-200 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                  {/* Change category */}
-                  <select
-                    value={item.category}
-                    onChange={e => updateItemCategory(item.id, e.target.value)}
-                    onClick={e => e.stopPropagation()}
-                    className="border border-white/20 rounded-lg px-2 py-1 text-xs w-28 focus:outline-none"
-                    style={{ fontFamily: font, backgroundColor: '#1a1a1a', color: '#fff' }}
-                  >
-                    <option value="">بدون تصنيف</option>
-                    {categories.map((cat: GalleryCategory) => (
-                      <option key={cat.key} value={cat.key}>{cat.labelAr}</option>
-                    ))}
-                  </select>
-                  {/* Sold toggle */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); updateItemSold(item.id, !item.isSold); }}
-                    className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition-colors ${item.isSold ? 'bg-orange-500/80 text-white hover:bg-orange-600' : 'bg-white/20 text-white/70 hover:bg-white/30'}`}
-                  >
-                    {item.isSold ? 'مباعة' : 'متاحة'}
-                  </button>
-                  {/* Delete */}
-                  <button onClick={() => removeItem(item.id)}
-                    className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 bg-black/60 px-3 py-1.5 rounded-lg transition-colors">
-                    <Trash2 size={12} /> حذف
-                  </button>
+              <div key={item.id} className="bg-white/5 border border-white/10 rounded-2xl p-3 flex gap-4 items-start hover:border-white/20 transition-colors">
+                {/* Thumbnail */}
+                <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-white/5 relative">
+                  {item.src.startsWith('data:') ? (
+                    <DataUrlImg src={item.src} alt="gallery" className="w-full h-full object-cover" />
+                  ) : (
+                    <Image src={item.src} alt="gallery" fill sizes="80px" className="object-cover" />
+                  )}
+                  {item.isSold && (
+                    <div className="absolute bottom-0.5 left-0.5 bg-orange-500/80 text-white text-[8px] px-1.5 py-0.5 rounded-full">مباعة</div>
+                  )}
                 </div>
 
-                {/* Category badge */}
-                {item.category && (
-                  <div className="absolute top-1.5 right-1.5 bg-[#C4956A]/80 text-white text-[10px] px-2 py-0.5 rounded-full">
-                    {categories.find(c => c.key === item.category)?.labelAr ?? ''}
+                {/* Info */}
+                {editingId === item.id ? (
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input value={editNameAr} onChange={e => setEditNameAr(e.target.value)} placeholder="الاسم بالعربي"
+                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />
+                      <input value={editNameEn} onChange={e => setEditNameEn(e.target.value)} placeholder="English name"
+                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <input type="text" inputMode="numeric" value={editPrice} onChange={e => setEditPrice(e.target.value.replace(/[^0-9]/g, ''))} placeholder="السعر"
+                        className="w-24 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />
+                      <span className="text-white/30 text-xs">ريال</span>
+                      <button onClick={saveEdit} className="flex items-center gap-1 text-xs px-3 py-1.5 bg-[#C4956A] hover:bg-[#8B6245] rounded-lg transition-colors"><Check size={12} /> حفظ</button>
+                      <button onClick={() => setEditingId(null)} className="text-xs px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">إلغاء</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-white text-sm truncate">{item.nameAr || 'بدون اسم'}</span>
+                      {item.nameEn && <span className="text-white/30 text-xs truncate">{item.nameEn}</span>}
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-white/40">
+                      {item.category && (
+                        <span className="bg-white/10 px-2 py-0.5 rounded-full">
+                          {categories.find(c => c.key === item.category)?.labelAr ?? ''}
+                        </span>
+                      )}
+                      {item.price ? <span className="text-[#C4956A]">{item.price.toLocaleString()} ريال</span> : <span className="text-white/20">بدون سعر</span>}
+                      {item.isSold && <span className="text-orange-400 font-semibold">مباعة</span>}
+                    </div>
                   </div>
                 )}
-                {item.nameAr && (
-                  <div className="absolute bottom-7 right-1.5 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full max-w-[90%] truncate">
-                    {item.nameAr}{item.price ? ` • ${item.price} ريال` : ''}
-                  </div>
-                )}
-                {item.isSold && (
-                  <div className="absolute bottom-1.5 left-1.5 bg-orange-500/80 text-white text-[10px] px-2 py-0.5 rounded-full">
-                    مباعة
+
+                {/* Actions */}
+                {editingId !== item.id && (
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <select value={item.category} onChange={e => updateItemCategory(item.id, e.target.value)}
+                      className="border border-white/10 rounded-lg px-1.5 py-1 text-[10px] focus:outline-none"
+                      style={{ fontFamily: font, backgroundColor: '#1a1a1a', color: '#fff' }}>
+                      <option value="">تصنيف</option>
+                      {categories.map((cat: GalleryCategory) => (
+                        <option key={cat.key} value={cat.key}>{cat.labelAr}</option>
+                      ))}
+                    </select>
+                    <button onClick={() => startEdit(item)}
+                      className="text-xs text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-1.5 rounded-lg transition-colors" title="تعديل">
+                      <Pencil size={13} />
+                    </button>
+                    <button onClick={() => updateItemSold(item.id, !item.isSold)}
+                      className={`text-xs p-1.5 rounded-lg transition-colors ${item.isSold ? 'bg-orange-500/30 text-orange-400' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                      title={item.isSold ? 'إلغاء البيع' : 'تحديد كمباعة'}>
+                      {item.isSold ? '✓' : '○'}
+                    </button>
+                    <button onClick={() => removeItem(item.id)}
+                      className="text-xs text-red-400 hover:text-red-300 bg-white/5 hover:bg-white/10 p-1.5 rounded-lg transition-colors" title="حذف">
+                      <Trash2 size={13} />
+                    </button>
                   </div>
                 )}
               </div>
