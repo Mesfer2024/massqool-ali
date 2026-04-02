@@ -83,16 +83,17 @@ export default function GallerySection() {
           </div>
         )}
 
-        {/* Masonry columns — gap-3/mb-3 must stay in sync */}
+        {/* Horizontal scroll — images keep natural 9:16 ratio */}
         <motion.div
           initial="hidden" whileInView="visible"
           viewport={{ once: true, margin: '-60px' }}
           variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
-          className="columns-2 md:columns-3 lg:columns-4 gap-3 md:gap-4"
+          className="flex gap-3 md:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+          style={{ scrollbarWidth: 'none' }}
         >
           {filtered.map((item, i) => (
             <motion.div key={item.id} variants={fadeUp}
-              className="group relative overflow-hidden rounded-sm bg-stone cursor-pointer mb-3 md:mb-4 break-inside-avoid"
+              className="group relative flex-shrink-0 w-[45vw] sm:w-[30vw] md:w-[22vw] lg:w-[18vw] overflow-hidden rounded-sm bg-stone cursor-pointer snap-start"
               whileHover={{ y: -3 }} transition={{ duration: 0.3 }}
               role="button" tabIndex={0}
               onClick={() => setLightbox(i)}
