@@ -106,7 +106,7 @@ export async function setReviews(reviews: Review[]): Promise<void> {
 export async function getGalleryItems(): Promise<GalleryItem[]> {
   try {
     const stored = await getRedis().get<GalleryItem[]>('massqool:gallery:items');
-    if (stored && stored.length > 0) return stored;
+    if (stored !== null) return stored;
   } catch (e) {
     console.error('KV getGalleryItems error:', e);
   }

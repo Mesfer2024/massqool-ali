@@ -74,7 +74,7 @@ export default function CategoryPageClient({ category }: { category: string }) {
                     {item.images?.[0] ? (
                       <Image
                         src={item.images[0]}
-                        alt={lang === 'ar' ? item.nameAr : item.nameEn || 'Product'}
+                        alt={lang === 'ar' ? (item.nameAr || 'Product') : (item.nameEn || item.nameAr || 'Product')}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-700"
                         sizes="(max-width: 768px) 50vw, 25vw"
