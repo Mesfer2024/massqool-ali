@@ -39,6 +39,7 @@ export default function AdminGalleryPage() {
   const router = useRouter();
   const { items, categories, addItem, removeItem, updateItem, addCategory, removeCategory } = useGallery();
   const [authorized, setAuthorized] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   // Upload state
   const [uploading, setUploading] = useState(false);
@@ -89,8 +90,14 @@ export default function AdminGalleryPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (localStorage.getItem('admin-auth') !== 'true') router.replace('/admin');
-    else setAuthorized(true);
+    if (typeof window !== 'undefined') {
+      if (localStorage.getItem('admin-auth') !== 'true') {
+        router.replace('/admin');
+      } else {
+        setAuthorized(true);
+      }
+      setIsChecking(false);
+    }
   }, [router]);
 
   const handleLogout = () => { localStorage.removeItem('admin-auth'); window.dispatchEvent(new Event('admin-auth-change')); router.push('/admin'); };
@@ -253,7 +260,7 @@ export default function AdminGalleryPage() {
     return Math.round(((original - price) / original) * 100);
   };
 
-  if (!authorized) return null;
+  if (isChecking || !authorized) return null;
 
   return (
     <div className="min-h-screen bg-[#0D0C0A] text-white" style={{ fontFamily: font }}>
