@@ -67,7 +67,7 @@ export async function getProducts(): Promise<Product[]> {
   try {
     const stored = await getRedis().get<Product[]>('massqool:products');
     console.log('Redis getProducts:', stored ? `${stored.length} products` : 'null');
-    if (stored && stored.length > 0) return stored;
+    if (stored !== null) return stored;
   } catch (e) {
     console.error('KV getProducts error:', e);
   }
