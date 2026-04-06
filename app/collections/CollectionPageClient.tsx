@@ -3,17 +3,32 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLang } from '@/context/LanguageContext';
-import { categories } from '@/data/products';
+import { useGallery } from '@/context/GalleryContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
 };
 
+// Category images mapping
+const CATEGORY_IMAGES: Record<string, string> = {
+  'clocks': '/media/images/masqool-hero-03.jpeg',
+  'tables': '/media/images/masqool-hero-09.jpeg',
+  'lamps': '/media/images/masqool-hero-06.jpeg',
+  'fireplaces': '/media/images/masqool-hero-02.jpeg',
+  'collectibles': '/media/images/masqool-hero-05.jpeg',
+  'vases': '/media/images/masqool-hero-14.jpeg',
+  'other': '/media/images/masqool-hero-16.jpeg',
+};
+
 export default function CollectionPageClient() {
   const { lang, t } = useLang();
+  const { categories, items } = useGallery();
   const headlineFont = lang === 'ar' ? "'Cairo', sans-serif" : "'Cormorant Garamond', serif";
   const bodyFont = lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif";
+
+  // Get count of items per category
+  const getCategoryCount = (key: string) => items.filter(item => item.category === key).length;
 
   return (
     <div className="min-h-screen bg-cream pt-24 pb-20">
@@ -43,14 +58,14 @@ export default function CollectionPageClient() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {categories.map((cat) => (
-            <motion.div key={cat.id} variants={fadeUp}>
+            <motion.div key={cat.key} variants={fadeUp}>
               <Link
-                href={cat.href}
+                href={`/gallery?category=${cat.key}`}
                 className="group relative block aspect-[3/4] overflow-hidden rounded-sm bg-charcoal"
               >
                 <Image
-                  src={cat.image}
-                  alt={lang === 'ar' ? cat.nameAr : cat.nameEn}
+                  src={CATEGORY_IMAGES[cat.key] || '/media/images/masqool-hero-03.jpeg'}
+                  alt={lang === 'ar' ? cat.labelAr : cat.labelEn}
                   fill
                   className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                   sizes="(max-width: 768px) 100vw, 33vw"
@@ -61,8 +76,11 @@ export default function CollectionPageClient() {
                     className="text-white text-xl font-bold mb-1"
                     style={{ fontFamily: headlineFont, fontWeight: lang === 'ar' ? 700 : 400 }}
                   >
-                    {lang === 'ar' ? cat.nameAr : cat.nameEn}
+                    {lang === 'ar' ? cat.labelAr : cat.labelEn}
                   </h3>
+                  <p className="text-white/60 text-sm mb-2" style={{ fontFamily: bodyFont }}>
+                    {getCategoryCount(cat.key)} {lang === 'ar' ? 'منتج' : 'products'}
+                  </p>
                   <span
                     className="text-[#C4956A] text-sm flex items-center gap-1.5 group-hover:gap-3 transition-all duration-300"
                     style={{ fontFamily: bodyFont }}
@@ -81,4 +99,3 @@ export default function CollectionPageClient() {
     </div>
   );
 }
-
