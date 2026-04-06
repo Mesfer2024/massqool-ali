@@ -6,7 +6,6 @@ import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ReviewsProvider } from "@/context/ReviewsContext";
 import { GalleryProvider } from "@/context/GalleryContext";
-import { ProductsProvider } from "@/context/ProductsContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import WhatsAppFloat from "@/components/layout/WhatsAppFloat";
@@ -70,15 +69,13 @@ export default function RootLayout({
           <LanguageProvider>
             <ReviewsProvider>
               <GalleryProvider>
-              <ProductsProvider>
-              <CartProvider>
-                <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
-                <WhatsAppFloat />
-                <CartDrawer />
-              </CartProvider>
-              </ProductsProvider>
+                <CartProvider>
+                  <Navbar />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                  <WhatsAppFloat />
+                  <CartDrawer />
+                </CartProvider>
               </GalleryProvider>
             </ReviewsProvider>
           </LanguageProvider>

@@ -1,6 +1,6 @@
 'use client';
 import { categories } from '@/data/products';
-import { useProducts } from '@/context/ProductsContext';
+import { useGallery } from '@/context/GalleryContext';
 import ProductCard from '@/components/product/ProductCard';
 import { useLang } from '@/context/LanguageContext';
 import { motion } from 'framer-motion';
@@ -18,7 +18,7 @@ const CATEGORY_NAMES: Record<string, { ar: string; en: string }> = {
 
 export default function CategoryPageClient({ category }: { category: string }) {
   const { lang } = useLang();
-  const { products } = useProducts();
+  const { products } = useGallery();
   const font = lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif";
 
   const catInfo = CATEGORY_NAMES[category];

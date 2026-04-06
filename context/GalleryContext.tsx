@@ -1,14 +1,17 @@
 'use client';
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { Product, ProductCategory } from '@/types/product';
 
 export interface GalleryItem {
   id: string;
-  images?: string[];       // مصفوفة صور متعددة (جديد)
-  src?: string;            // للتوافق مع البيانات القديمة
+  images: string[];
+  src?: string;
   category: string;
   isSold?: boolean;
   isNew?: boolean;
   isOnSale?: boolean;
+  isComingSoon?: boolean;
+  isFeatured?: boolean;
   nameAr?: string;
   nameEn?: string;
   price?: number;
@@ -17,6 +20,9 @@ export interface GalleryItem {
   dimensionsEn?: string;
   descriptionAr?: string;
   descriptionEn?: string;
+  materials?: string;
+  whatsappInquiryText?: string;
+  slug?: string;
 }
 
 export interface GalleryCategory {
@@ -34,19 +40,37 @@ function adminHeaders(): Record<string, string> {
   return { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() };
 }
 
-async function uploadToBlob(dataUrl: string): Promise<string> {
-  if (!dataUrl.startsWith('data:')) return dataUrl;
-  try {
-    const res = await fetch('/api/upload-image', {
-      method: 'POST',
-      headers: adminHeaders(),
-      body: JSON.stringify({ dataUrl, folder: 'gallery' }),
-    });
-    const data = await res.json();
-    return data.url || dataUrl;
-  } catch {
-    return dataUrl;
-  }
+// Helper to convert GalleryItem to Product type
+function galleryItemToProduct(item: GalleryItem): Product {
+  const slug = item.slug || item.nameAr?.toLowerCase().replace(/\s+/g, '-') || item.id;
+  const categoryMap: Record<string, ProductCategory> = {
+    'clocks': 'wall-clocks',
+    'tables': 'side-tables',
+    'lamps': 'lamps',
+    'collectibles': 'signature',
+    'fireplaces': 'signature',
+    'vases': 'signature',
+    'other': 'signature',
+  };
+  
+  return {
+    id: item.id,
+    slug: slug,
+    nameAr: item.nameAr || 'منتج بدون اسم',
+    nameEn: item.nameEn || 'Unnamed Product',
+    category: categoryMap[item.category] || 'signature',
+    price: item.price || 0,
+    images: item.images?.length ? item.images : item.src ? [item.src] : [],
+    descriptionAr: item.descriptionAr || '',
+    descriptionEn: item.descriptionEn || '',
+    isSignature: item.category === 'collectibles' || item.category === 'fireplaces' || item.category === 'vases' || item.category === 'other',
+    isFeatured: item.isFeatured || false,
+    isSold: item.isSold,
+    dimensions: item.dimensionsAr || item.dimensionsEn ? { ar: item.dimensionsAr || '', en: item.dimensionsEn || '' } : undefined,
+    isPlaceholderDimensions: true,
+    materials: item.materials,
+    whatsappInquiryText: item.whatsappInquiryText || `مرحباً، أودّ الاستفسار عن ${item.nameAr || 'هذا المنتج'}`,
+  };
 }
 
 const DEFAULT_CATEGORIES: GalleryCategory[] = [
@@ -58,47 +82,35 @@ const DEFAULT_CATEGORIES: GalleryCategory[] = [
   { key: 'other', labelAr: 'أخرى', labelEn: 'Other' },
 ];
 
-const DEFAULT_IMAGES: GalleryItem[] = [
-  { id: 'd2', images: ['/media/images/masqool-hero-02.jpeg'], category: '' },
-  { id: 'd3', images: ['/media/images/masqool-hero-03.jpeg'], category: '' },
-  { id: 'd4', images: ['/media/images/masqool-hero-04.jpeg'], category: '' },
-  { id: 'd5', images: ['/media/images/masqool-hero-05.jpeg'], category: '' },
-  { id: 'd6', images: ['/media/images/masqool-hero-06.jpeg'], category: '' },
-  { id: 'd7', images: ['/media/images/masqool-hero-10.jpeg'], category: '' },
-  { id: 'd8', images: ['/media/images/masqool-hero-12.jpeg'], category: '' },
-  { id: 'd9', images: ['/media/images/masqool-hero-13.jpeg'], category: '' },
-  { id: 'd10', images: ['/media/images/masqool-hero-14.jpeg'], category: '' },
-  { id: 'd11', images: ['/media/images/masqool-hero-16.jpeg'], category: '' },
-  { id: 'd12', images: ['/media/images/masqool-hero-17.jpeg'], category: '' },
-];
-
 interface GalleryContextValue {
   items: GalleryItem[];
   categories: GalleryCategory[];
-  addItem: (firstImage: string, category: string, extra?: Partial<GalleryItem>) => void;
-  removeItem: (id: string) => void;
-  updateItemCategory: (id: string, category: string) => void;
-  updateItem: (id: string, data: Partial<GalleryItem>) => void;
-  addCategory: (cat: Omit<GalleryCategory, 'key'>) => void;
-  removeCategory: (key: string) => void;
-  updateItemSold: (id: string, isSold: boolean) => void;
+  loading: boolean;
+  // Product-compatible interface
+  products: Product[];
+  addItem: (item: Omit<GalleryItem, 'id'>) => Promise<void>;
+  removeItem: (id: string) => Promise<void>;
+  updateItem: (id: string, data: Partial<GalleryItem>) => Promise<void>;
+  addCategory: (cat: Omit<GalleryCategory, 'key'>) => Promise<void>;
+  removeCategory: (key: string) => Promise<void>;
 }
 
 const GalleryContext = createContext<GalleryContextValue>({
-  items: DEFAULT_IMAGES,
-  categories: [],
-  addItem: () => {},
-  removeItem: () => {},
-  updateItemCategory: () => {},
-  updateItem: () => {},
-  addCategory: () => {},
-  removeCategory: () => {},
-  updateItemSold: () => {},
+  items: [],
+  categories: DEFAULT_CATEGORIES,
+  loading: true,
+  products: [],
+  addItem: async () => {},
+  removeItem: async () => {},
+  updateItem: async () => {},
+  addCategory: async () => {},
+  removeCategory: async () => {},
 });
 
 export function GalleryProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<GalleryItem[]>(DEFAULT_IMAGES);
+  const [items, setItems] = useState<GalleryItem[]>([]);
   const [categories, setCategories] = useState<GalleryCategory[]>(DEFAULT_CATEGORIES);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/gallery')
@@ -107,31 +119,22 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
         if (Array.isArray(data.items)) setItems(data.items);
         if (Array.isArray(data.categories)) setCategories(data.categories);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const addItem = useCallback(async (firstImage: string, category: string, extra?: Partial<GalleryItem>) => {
-    const tempId = crypto.randomUUID();
-    const images = extra?.images?.length ? extra.images : [firstImage];
-    setItems(prev => [{ id: tempId, images, category, ...extra }, ...prev]);
+  // Convert items to products for backward compatibility
+  const products = useMemo(() => items.map(galleryItemToProduct), [items]);
 
-    const uploadedImages = await Promise.all(images.map(async (img) => {
-      if (!img.startsWith('data:')) return img;
-      try {
-        const res = await fetch('/api/upload-image', {
-          method: 'POST',
-          headers: adminHeaders(),
-          body: JSON.stringify({ dataUrl: img, folder: 'gallery' }),
-        });
-        const data = await res.json();
-        return data.url || img;
-      } catch { return img; }
-    }));
-    
+  const addItem = useCallback(async (item: Omit<GalleryItem, 'id'>) => {
+    const tempId = crypto.randomUUID();
+    const newItem = { ...item, id: tempId };
+    setItems(prev => [newItem, ...prev]);
+
     const res = await fetch('/api/gallery', {
       method: 'POST',
       headers: adminHeaders(),
-      body: JSON.stringify({ action: 'addItem', images: uploadedImages, category, ...extra }),
+      body: JSON.stringify({ action: 'addItem', item }),
     });
     const data = await res.json();
     if (data.items) setItems(data.items);
@@ -142,7 +145,7 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
     const res = await fetch('/api/gallery', {
       method: 'POST',
       headers: adminHeaders(),
-      body: JSON.stringify({ action: 'updateItem', id, ...updates }),
+      body: JSON.stringify({ action: 'updateItem', id, updates }),
     });
     const data = await res.json();
     if (data.items) setItems(data.items);
@@ -154,17 +157,6 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
       method: 'POST',
       headers: adminHeaders(),
       body: JSON.stringify({ action: 'removeItem', id }),
-    });
-    const data = await res.json();
-    if (data.items) setItems(data.items);
-  }, []);
-
-  const updateItemCategory = useCallback(async (id: string, category: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, category } : i));
-    const res = await fetch('/api/gallery', {
-      method: 'POST',
-      headers: adminHeaders(),
-      body: JSON.stringify({ action: 'updateItemCategory', id, category }),
     });
     const data = await res.json();
     if (data.items) setItems(data.items);
@@ -195,19 +187,8 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
     if (data.items) setItems(data.items);
   }, []);
 
-  const updateItemSold = useCallback(async (id: string, isSold: boolean) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, isSold } : i));
-    const res = await fetch('/api/gallery', {
-      method: 'POST',
-      headers: adminHeaders(),
-      body: JSON.stringify({ action: 'updateItemSold', id, isSold }),
-    });
-    const data = await res.json();
-    if (data.items) setItems(data.items);
-  }, []);
-
   return (
-    <GalleryContext.Provider value={{ items, categories, addItem, removeItem, updateItemCategory, updateItem, addCategory, removeCategory, updateItemSold }}>
+    <GalleryContext.Provider value={{ items, categories, loading, products, addItem, removeItem, updateItem, addCategory, removeCategory }}>
       {children}
     </GalleryContext.Provider>
   );

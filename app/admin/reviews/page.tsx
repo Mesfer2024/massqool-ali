@@ -87,8 +87,7 @@ export default function AdminReviewsPage() {
           </button>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => router.push('/admin/products')} className="text-sm px-4 py-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors">المنتجات</button>
-          <button onClick={() => router.push('/admin/gallery')} className="text-sm px-4 py-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors">المعرض</button>
+          <button onClick={() => router.push('/admin/gallery')} className="text-sm px-4 py-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors">المنتجات</button>
           <span className="text-sm px-4 py-2 bg-[#C4956A]/20 text-[#C4956A] rounded-lg font-bold">التعليقات</span>
         </div>
       </header>

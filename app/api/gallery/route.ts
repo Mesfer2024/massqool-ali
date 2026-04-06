@@ -21,18 +21,7 @@ export async function POST(request: Request) {
     const items = await getGalleryItems();
     const newItem = { 
       id: crypto.randomUUID(), 
-      images: body.images || [body.src], 
-      category: body.category || '', 
-      nameAr: body.nameAr,
-      nameEn: body.nameEn,
-      price: body.price,
-      originalPrice: body.originalPrice,
-      dimensionsAr: body.dimensionsAr,
-      dimensionsEn: body.dimensionsEn,
-      descriptionAr: body.descriptionAr,
-      descriptionEn: body.descriptionEn,
-      isNew: body.isNew,
-      isOnSale: body.isOnSale,
+      ...body.item,
     };
     const updated = [newItem, ...items];
     await setGalleryItems(updated);
@@ -41,8 +30,7 @@ export async function POST(request: Request) {
 
   if (action === 'updateItem') {
     const items = await getGalleryItems();
-    const { id, ...updates } = body;
-    delete updates.action;
+    const { id, updates } = body;
     const updated = items.map(i => i.id === id ? { ...i, ...updates } : i);
     await setGalleryItems(updated);
     return Response.json({ ok: true, items: updated });
@@ -51,20 +39,6 @@ export async function POST(request: Request) {
   if (action === 'removeItem') {
     const items = await getGalleryItems();
     const updated = items.filter(i => i.id !== body.id);
-    await setGalleryItems(updated);
-    return Response.json({ ok: true, items: updated });
-  }
-
-  if (action === 'updateItemCategory') {
-    const items = await getGalleryItems();
-    const updated = items.map(i => i.id === body.id ? { ...i, category: body.category } : i);
-    await setGalleryItems(updated);
-    return Response.json({ ok: true, items: updated });
-  }
-
-  if (action === 'updateItemSold') {
-    const items = await getGalleryItems();
-    const updated = items.map(i => i.id === body.id ? { ...i, isSold: body.isSold } : i);
     await setGalleryItems(updated);
     return Response.json({ ok: true, items: updated });
   }

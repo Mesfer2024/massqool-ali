@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (localStorage.getItem('admin-auth') === 'true') router.replace('/admin/products');
+    if (localStorage.getItem('admin-auth') === 'true') router.replace('/admin/gallery');
   }, [router]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
         localStorage.setItem('admin-auth', 'true');
         localStorage.setItem('admin-secret', password);
         window.dispatchEvent(new Event('admin-auth-change'));
-        router.push('/admin/products');
+        router.push('/admin/gallery');
       } else {
         setError('اسم المستخدم أو كلمة المرور غير صحيحة');
         setLoading(false);

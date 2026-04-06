@@ -1,6 +1,6 @@
 'use client';
 import { WHATSAPP_NUMBER } from '@/data/products';
-import { useProducts } from '@/context/ProductsContext';
+import { useGallery } from '@/context/GalleryContext';
 import { useLang } from '@/context/LanguageContext';
 import { useCart } from '@/context/CartContext';
 import { motion } from 'framer-motion';
@@ -13,7 +13,7 @@ import { notFound } from 'next/navigation';
 export default function ProductDetailClient({ slug }: { slug: string }) {
   const { lang, t } = useLang();
   const { addItem } = useCart();
-  const { products } = useProducts();
+  const { products } = useGallery();
   const [activeImage, setActiveImage] = useState(0);
 
   const product = products.find((p) => p.slug === slug);
