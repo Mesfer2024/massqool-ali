@@ -133,7 +133,11 @@ export default function GallerySection() {
         )}
 
         {/* Grid */}
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-60px' }} variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
+        <motion.div 
+          key={activeCategory}
+          initial="hidden" 
+          animate="visible" 
+          variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
           className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 lg:gap-4"
         >
           {filtered.map((item, i) => (
