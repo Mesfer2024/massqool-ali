@@ -124,7 +124,12 @@ export async function setGalleryItems(items: GalleryItem[]): Promise<void> {
 export async function getGalleryCategories(): Promise<GalleryCategory[]> {
   try {
     const stored = await getRedis().get<GalleryCategory[]>('massqool:gallery:categories');
-    if (stored && stored.length > 0) return stored;
+    // Check if stored categories match expected keys
+    const expectedKeys = ['clocks', 'tables', 'fireplaces', 'collectibles', 'vases', 'other'];
+    if (stored && stored.length > 0) {
+      const hasAllKeys = expectedKeys.every(key => stored.some(c => c.key === key));
+      if (hasAllKeys) return stored;
+    }
   } catch (e) {
     console.error('KV getGalleryCategories error:', e);
   }
