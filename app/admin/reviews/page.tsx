@@ -35,12 +35,16 @@ export default function AdminReviewsPage() {
   const [editText, setEditText] = useState('');
   const [editRating, setEditRating] = useState(0);
   const [authorized, setAuthorized] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (localStorage.getItem('admin-auth') !== 'true') {
-      router.replace('/admin');
-    } else {
-      setAuthorized(true);
+    if (typeof window !== 'undefined') {
+      if (localStorage.getItem('admin-auth') !== 'true') {
+        router.replace('/admin');
+      } else {
+        setAuthorized(true);
+      }
+      setIsChecking(false);
     }
   }, [router]);
 
@@ -68,7 +72,7 @@ export default function AdminReviewsPage() {
     }
   };
 
-  if (!authorized) return null;
+  if (isChecking || !authorized) return null;
 
   return (
     <div className="min-h-screen bg-[#0D0C0A] text-white" style={{ fontFamily: "'Cairo', sans-serif" }}>
