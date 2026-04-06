@@ -154,11 +154,11 @@ export default function GallerySection() {
               onClick={() => setLightbox(i)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setLightbox(i); }}
             >
-              {isDataUrl(item.src) ? (
-                <DataUrlImg src={item.src} alt={`Massqool gallery ${i + 1}`}
+              {isDataUrl(item.thumbnail || item.src) ? (
+                <DataUrlImg src={item.thumbnail || item.src} alt={item.nameAr || `Massqool gallery ${i + 1}`}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
               ) : (
-                <Image src={item.src} alt={`Massqool gallery ${i + 1}`} fill
+                <Image src={item.thumbnail || item.src} alt={item.nameAr || `Massqool gallery ${i + 1}`} fill
                   sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
               )}
@@ -220,10 +220,10 @@ export default function GallerySection() {
                 className="relative w-full h-full max-w-md mx-auto"
               >
                 {isDataUrl(filtered[lightbox].src) ? (
-                  <DataUrlImg src={filtered[lightbox].src} alt="Gallery"
+                  <DataUrlImg src={filtered[lightbox].src} alt={filtered[lightbox].nameAr || 'Gallery'}
                     className="w-full h-full object-contain" />
                 ) : (
-                  <Image src={filtered[lightbox].src} alt="Gallery" fill sizes="100vw" className="object-contain" />
+                  <Image src={filtered[lightbox].src} alt={filtered[lightbox].nameAr || 'Gallery'} fill sizes="100vw" className="object-contain" />
                 )}
               </motion.div>
 

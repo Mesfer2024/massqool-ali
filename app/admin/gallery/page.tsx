@@ -46,6 +46,8 @@ export default function AdminGalleryPage() {
   const [uploadPrice, setUploadPrice] = useState('');
   const [uploadDimAr, setUploadDimAr] = useState('');
   const [uploadDimEn, setUploadDimEn] = useState('');
+  const [mainImage, setMainImage] = useState<string>('');      // الصورة الكبيرة
+  const [thumbImage, setThumbImage] = useState<string>('');    // صورة المعرض
 
   // New category form
   const [showCatForm, setShowCatForm] = useState(false);
@@ -87,8 +89,25 @@ export default function AdminGalleryPage() {
 
   const handleLogout = () => { localStorage.removeItem('admin-auth'); window.dispatchEvent(new Event('admin-auth-change')); router.push('/admin'); };
 
-  const handleFiles = async (files: FileList | null) => {
-    if (!files) return;
+  const handleFiles = async (files: FileList | null, type: 'main' | 'thumb') => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    const file = files[0];
+    if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
+      setUploading(false);
+      return;
+    }
+    const compressed = await compressImage(file);
+    if (type === 'main') {
+      setMainImage(compressed);
+    } else {
+      setThumbImage(compressed);
+    }
+    setUploading(false);
+  };
+
+  const handleSubmit = async () => {
+    if (!mainImage) return;
     setUploading(true);
     const extra = {
       nameAr: uploadNameAr.trim() || undefined,
@@ -97,14 +116,36 @@ export default function AdminGalleryPage() {
       dimensionsAr: uploadDimAr.trim() || undefined,
       dimensionsEn: uploadDimEn.trim() || undefined,
     };
-    for (const file of Array.from(files)) {
-      if (!file.type.startsWith('image/')) continue;
-      if (file.size > 10 * 1024 * 1024) continue;
-      const compressed = await compressImage(file);
-      addItem(compressed, selectedCategory, extra);
-    }
+    // رفع الصورتين للـ Blob
+    const secret = localStorage.getItem('admin-secret') || '';
+    const uploadedMain = await (async () => {
+      if (!mainImage.startsWith('data:')) return mainImage;
+      try {
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret },
+          body: JSON.stringify({ dataUrl: mainImage, folder: 'gallery' }),
+        });
+        const data = await res.json();
+        return data.url || mainImage;
+      } catch { return mainImage; }
+    })();
+    const uploadedThumb = thumbImage ? await (async () => {
+      if (!thumbImage.startsWith('data:')) return thumbImage;
+      try {
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret },
+          body: JSON.stringify({ dataUrl: thumbImage, folder: 'gallery' }),
+        });
+        const data = await res.json();
+        return data.url || thumbImage;
+      } catch { return thumbImage; }
+    })() : undefined;
+    
+    await addItem(uploadedMain, selectedCategory, { ...extra, thumbnail: uploadedThumb });
     setUploading(false);
-    setUploadNameAr(''); setUploadNameEn(''); setUploadPrice(''); setUploadDimAr(''); setUploadDimEn('');
+    setMainImage(''); setThumbImage(''); setUploadNameAr(''); setUploadNameEn(''); setUploadPrice(''); setUploadDimAr(''); setUploadDimEn('');
   };
 
   const handleAddCategory = () => {
@@ -191,7 +232,43 @@ export default function AdminGalleryPage() {
 
         {/* ── Upload ── */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="font-semibold flex items-center gap-2 text-lg mb-4"><Upload size={16} /> رفع صور جديدة</h2>
+          <h2 className="font-semibold flex items-center gap-2 text-lg mb-4"><Upload size={16} /> إضافة قطعة جديدة</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* Main Image */}
+            <div className="border border-white/10 rounded-xl p-4">
+              <label className="text-white/50 text-xs mb-2 block">الصورة الكبيرة (Lightbox) *</label>
+              {mainImage ? (
+                <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
+                  <Image src={mainImage} alt="main" fill className="object-cover" />
+                  <button onClick={() => setMainImage('')} className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded"><X size={14} /></button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-xl py-8 cursor-pointer hover:border-[#C4956A] transition-colors">
+                  <Upload size={24} className="text-white/30 mb-2" />
+                  <span className="text-white/40 text-xs">اضغط لرفع الصورة الكبيرة</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={e => handleFiles(e.target.files, 'main')} />
+                </label>
+              )}
+            </div>
+
+            {/* Thumbnail */}
+            <div className="border border-white/10 rounded-xl p-4">
+              <label className="text-white/50 text-xs mb-2 block">صورة المعرض (Thumbnail) — اختياري</label>
+              {thumbImage ? (
+                <div className="relative aspect-square rounded-lg overflow-hidden">
+                  <Image src={thumbImage} alt="thumb" fill className="object-cover" />
+                  <button onClick={() => setThumbImage('')} className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded"><X size={14} /></button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-xl py-8 cursor-pointer hover:border-[#C4956A] transition-colors">
+                  <Upload size={24} className="text-white/30 mb-2" />
+                  <span className="text-white/40 text-xs">اضغط لرفع صورة المعرض</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={e => handleFiles(e.target.files, 'thumb')} />
+                </label>
+              )}
+            </div>
+          </div>
 
           {/* Category selector for upload */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
@@ -243,21 +320,14 @@ export default function AdminGalleryPage() {
             </div>
           </div>
 
-          {/* Drop zone */}
+          {/* Submit button */}
           <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            onDragOver={e => e.preventDefault()}
-            onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
-            disabled={uploading}
-            className="w-full border-2 border-dashed border-white/15 hover:border-[#C4956A] rounded-xl py-12 flex flex-col items-center gap-3 transition-colors disabled:opacity-50 cursor-pointer"
+            onClick={handleSubmit}
+            disabled={!mainImage || uploading}
+            className="w-full flex items-center justify-center gap-2 bg-[#C4956A] hover:bg-[#8B6245] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors"
           >
-            <Upload size={32} className="text-white/30" />
-            <p className="text-white/40 text-sm">{uploading ? 'جاري الرفع...' : 'اضغط لاختيار صور أو اسحب وأفلت'}</p>
-            <p className="text-white/20 text-xs">JPG, PNG, WEBP — حتى 10MB لكل صورة</p>
+            {uploading ? 'جاري الحفظ...' : <><Plus size={18} /> إضافة للمعرض</>}
           </button>
-          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden"
-            onChange={e => handleFiles(e.target.files)} />
         </div>
 
         {/* ── Gallery grid ── */}
@@ -268,19 +338,39 @@ export default function AdminGalleryPage() {
               <div key={item.id} className="bg-white/5 border border-white/10 rounded-2xl p-3 flex gap-4 items-start hover:border-white/20 transition-colors">
                 {/* Thumbnail */}
                 <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-white/5 relative">
-                  {item.src.startsWith('data:') ? (
-                    <DataUrlImg src={item.src} alt="gallery" className="w-full h-full object-cover" />
+                  {(item.thumbnail || item.src) ? (
+                    <Image 
+                      src={item.thumbnail || item.src} 
+                      alt={item.nameAr || 'gallery'} 
+                      fill 
+                      sizes="80px" 
+                      className="object-cover" 
+                    />
                   ) : (
-                    <Image src={item.src} alt="gallery" fill sizes="80px" className="object-cover" />
+                    <div className="w-full h-full flex items-center justify-center text-white/20">
+                      <Images size={20} />
+                    </div>
                   )}
                   {item.isSold && (
-                    <div className="absolute bottom-0.5 left-0.5 bg-orange-500/80 text-white text-[8px] px-1.5 py-0.5 rounded-full">مباعة</div>
+                    <div className="absolute bottom-0.5 left-0.5 bg-orange-500/80 text-white text-[8px] px-1.5 py-0.5 rounded-full">
+                      مباعة
+                    </div>
                   )}
                 </div>
 
                 {/* Info */}
                 {editingId === item.id ? (
                   <div className="flex-1 flex flex-col gap-2">
+                    <div className="flex gap-2 mb-2">
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                        <Image src={item.thumbnail || item.src} alt="thumb" fill className="object-cover" />
+                        <span className="absolute bottom-0 left-0 bg-black/60 text-[8px] px-1">معرض</span>
+                      </div>
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                        <Image src={item.src} alt="main" fill className="object-cover" />
+                        <span className="absolute bottom-0 left-0 bg-black/60 text-[8px] px-1">كبيرة</span>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       <input value={editNameAr} onChange={e => setEditNameAr(e.target.value)} placeholder="الاسم بالعربي"
                         className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-[#C4956A]" style={{ fontFamily: font }} />

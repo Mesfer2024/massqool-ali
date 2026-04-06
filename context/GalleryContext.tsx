@@ -3,7 +3,8 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 
 export interface GalleryItem {
   id: string;
-  src: string;
+  src: string;           // الصورة الكبيرة (lightbox)
+  thumbnail?: string;    // صورة المعرض (thumbnail) - اختياري
   category: string;
   isSold?: boolean;
   nameAr?: string;
@@ -69,7 +70,7 @@ const DEFAULT_IMAGES: GalleryItem[] = [
 interface GalleryContextValue {
   items: GalleryItem[];
   categories: GalleryCategory[];
-  addItem: (src: string, category: string, extra?: { nameAr?: string; nameEn?: string; price?: number }) => void;
+  addItem: (src: string, category: string, extra?: { nameAr?: string; nameEn?: string; price?: number; dimensionsAr?: string; dimensionsEn?: string; thumbnail?: string }) => void;
   removeItem: (id: string) => void;
   updateItemCategory: (id: string, category: string) => void;
   updateItem: (id: string, data: Partial<GalleryItem>) => void;

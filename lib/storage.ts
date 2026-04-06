@@ -6,6 +6,7 @@ import { products as DEFAULT_PRODUCTS } from '@/data/products';
 interface GalleryItem {
   id: string;
   src: string;
+  thumbnail?: string;
   category: string;
   isSold?: boolean;
   nameAr?: string;
