@@ -106,15 +106,19 @@ export async function setReviews(reviews: Review[]): Promise<void> {
 export async function getGalleryItems(): Promise<GalleryItem[]> {
   try {
     const stored = await getRedis().get<GalleryItem[]>('massqool:gallery:items');
+    console.log('Storage getGalleryItems:', stored === null ? 'null' : `${stored.length} items`);
     if (stored !== null) return stored;
   } catch (e) {
     console.error('KV getGalleryItems error:', e);
   }
+  console.log('Storage getGalleryItems: returning defaults');
   return DEFAULT_IMAGES;
 }
 
 export async function setGalleryItems(items: GalleryItem[]): Promise<void> {
+  console.log('Storage setGalleryItems:', items.length, 'items');
   await getRedis().set('massqool:gallery:items', items);
+  console.log('Storage setGalleryItems: saved');
 }
 
 export async function getGalleryCategories(): Promise<GalleryCategory[]> {
