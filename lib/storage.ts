@@ -66,6 +66,7 @@ function getRedis(): Redis {
 export async function getProducts(): Promise<Product[]> {
   try {
     const stored = await getRedis().get<Product[]>('massqool:products');
+    console.log('Redis getProducts:', stored ? `${stored.length} products` : 'null');
     if (stored && stored.length > 0) return stored;
   } catch (e) {
     console.error('KV getProducts error:', e);
@@ -74,7 +75,14 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function setProducts(products: Product[]): Promise<void> {
-  await getRedis().set('massqool:products', products);
+  try {
+    console.log('Redis setProducts:', products.length, 'products');
+    await getRedis().set('massqool:products', products);
+    console.log('Redis setProducts: success');
+  } catch (e) {
+    console.error('KV setProducts error:', e);
+    throw e;
+  }
 }
 
 // ── Reviews ──
