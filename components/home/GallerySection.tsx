@@ -144,11 +144,11 @@ export default function GallerySection() {
               onClick={() => { setLightbox(i); setActiveImageIndex(0); }}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setLightbox(i); setActiveImageIndex(0); } }}
             >
-              {isDataUrl(item.images?.[0] || '') ? (
-                <DataUrlImg src={item.images?.[0] || ''} alt={item.nameAr || `Massqool gallery ${i + 1}`}
+              {isDataUrl(item.images?.[0] || item.src || '') ? (
+                <DataUrlImg src={item.images?.[0] || item.src || ''} alt={item.nameAr || `Massqool gallery ${i + 1}`}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
               ) : (
-                <Image src={item.images?.[0] || ''} alt={item.nameAr || `Massqool gallery ${i + 1}`} fill
+                <Image src={item.images?.[0] || item.src || ''} alt={item.nameAr || `Massqool gallery ${i + 1}`} fill
                   sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
               )}
@@ -219,10 +219,10 @@ export default function GallerySection() {
               <motion.div key={`${lightbox}-${activeImageIndex}`} initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.25 }}
                 className="relative w-full h-full max-w-md mx-auto"
               >
-                {isDataUrl(filtered[lightbox].images?.[activeImageIndex] || '') ? (
-                  <DataUrlImg src={filtered[lightbox].images?.[activeImageIndex] || ''} alt={filtered[lightbox].nameAr || 'Gallery'} className="w-full h-full object-contain" />
+                {isDataUrl(filtered[lightbox].images?.[activeImageIndex] || filtered[lightbox].src || '') ? (
+                  <DataUrlImg src={filtered[lightbox].images?.[activeImageIndex] || filtered[lightbox].src || ''} alt={filtered[lightbox].nameAr || 'Gallery'} className="w-full h-full object-contain" />
                 ) : (
-                  <Image src={filtered[lightbox].images?.[activeImageIndex] || ''} alt={filtered[lightbox].nameAr || 'Gallery'} fill sizes="100vw" className="object-contain" />
+                  <Image src={filtered[lightbox].images?.[activeImageIndex] || filtered[lightbox].src || ''} alt={filtered[lightbox].nameAr || 'Gallery'} fill sizes="100vw" className="object-contain" />
                 )}
               </motion.div>
 
@@ -234,7 +234,7 @@ export default function GallerySection() {
             {/* Thumbnails */}
             {(filtered[lightbox].images?.length || 0) > 1 && (
               <div className="flex justify-center gap-2 py-3 px-4 overflow-x-auto flex-shrink-0">
-                {filtered[lightbox].images?.map((img, i) => (
+                {(filtered[lightbox].images?.length ? filtered[lightbox].images : [filtered[lightbox].src]).filter((img): img is string => !!img).map((img, i) => (
                   <button key={i} onClick={() => setActiveImageIndex(i)}
                     className={`relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 transition-all ${
                       i === activeImageIndex ? 'ring-2 ring-[#C4956A]' : 'opacity-50 hover:opacity-100'

@@ -3,18 +3,19 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 
 export interface GalleryItem {
   id: string;
-  images: string[];        // مصفوفة صور متعددة
+  images?: string[];       // مصفوفة صور متعددة (جديد)
+  src?: string;            // للتوافق مع البيانات القديمة
   category: string;
   isSold?: boolean;
-  isNew?: boolean;         // شارة New
-  isOnSale?: boolean;      // شارة Sale
+  isNew?: boolean;
+  isOnSale?: boolean;
   nameAr?: string;
   nameEn?: string;
-  price?: number;          // السعر بعد الخصم
-  originalPrice?: number;  // السعر قبل الخصم
+  price?: number;
+  originalPrice?: number;
   dimensionsAr?: string;
   dimensionsEn?: string;
-  descriptionAr?: string;  // وصف تفصيلي
+  descriptionAr?: string;
   descriptionEn?: string;
 }
 
