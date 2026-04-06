@@ -2,11 +2,18 @@ import { getGalleryItems, setGalleryItems, getGalleryCategories, setGalleryCateg
 import { isAdmin } from '@/lib/auth';
 
 export async function GET() {
-  const [items, categories] = await Promise.all([
-    getGalleryItems(),
-    getGalleryCategories(),
-  ]);
-  return Response.json({ items, categories });
+  console.log('Gallery API GET called');
+  try {
+    const [items, categories] = await Promise.all([
+      getGalleryItems(),
+      getGalleryCategories(),
+    ]);
+    console.log('Gallery API returning:', items.length, 'items,', categories.length, 'categories');
+    return Response.json({ items, categories });
+  } catch (error) {
+    console.error('Gallery API error:', error);
+    return Response.json({ items: [], categories: [] }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
