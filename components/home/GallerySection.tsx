@@ -157,13 +157,20 @@ export default function GallerySection() {
 
               {/* Badges */}
               <div className="absolute top-2 start-2 flex flex-col gap-1">
-                {item.isNew && !item.isSold && (
+                {item.isNew && !item.isSold && !item.isComingSoon && (
                   <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{lang === 'ar' ? 'جديد' : 'New'}</span>
                 )}
-                {item.isOnSale && !item.isSold && item.originalPrice && item.price && item.originalPrice > item.price && (
+                {item.isOnSale && !item.isSold && !item.isComingSoon && item.originalPrice && item.price && item.originalPrice > item.price && (
                   <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-{discountPercent(item.price, item.originalPrice)}%</span>
                 )}
               </div>
+
+              {/* Coming Soon badge */}
+              {item.isComingSoon && (
+                <div className="absolute top-2 start-2 bg-blue-500/90 backdrop-blur-sm text-white text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full font-bold" style={{ fontFamily: font }}>
+                  {lang === 'ar' ? 'قريباً' : 'Coming Soon'}
+                </div>
+              )}
 
               {/* Sold badge */}
               {item.isSold && (
@@ -298,7 +305,14 @@ export default function GallerySection() {
               )}
 
               {/* Sold badge or inquiry button */}
-              {filtered[lightbox].isSold ? (
+              {filtered[lightbox].isComingSoon ? (
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-blue-400 text-xs font-bold tracking-wide" style={{ fontFamily: font }}>
+                    {lang === 'ar' ? '🔜 قريباً' : '🔜 Coming Soon'}
+                  </span>
+                  <p className="text-white/40 text-sm">{lang === 'ar' ? 'سيتوفر قريباً في المعرض' : 'Will be available soon'}</p>
+                </div>
+              ) : filtered[lightbox].isSold ? (
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-orange-400 text-xs font-bold tracking-wide" style={{ fontFamily: font }}>
                     {lang === 'ar' ? '✓ تم البيع' : '✓ Sold'}
