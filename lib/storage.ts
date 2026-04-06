@@ -5,15 +5,19 @@ import { products as DEFAULT_PRODUCTS } from '@/data/products';
 
 interface GalleryItem {
   id: string;
-  src: string;
-  thumbnail?: string;
+  images: string[];
   category: string;
   isSold?: boolean;
+  isNew?: boolean;
+  isOnSale?: boolean;
   nameAr?: string;
   nameEn?: string;
   price?: number;
+  originalPrice?: number;
   dimensionsAr?: string;
   dimensionsEn?: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
 }
 
 interface GalleryCategory {
@@ -32,17 +36,17 @@ const DEFAULT_CATEGORIES: GalleryCategory[] = [
 ];
 
 const DEFAULT_IMAGES: GalleryItem[] = [
-  { id: 'd2', src: '/media/images/masqool-hero-02.jpeg', category: '' },
-  { id: 'd3', src: '/media/images/masqool-hero-03.jpeg', category: '' },
-  { id: 'd4', src: '/media/images/masqool-hero-04.jpeg', category: '' },
-  { id: 'd5', src: '/media/images/masqool-hero-05.jpeg', category: '' },
-  { id: 'd6', src: '/media/images/masqool-hero-06.jpeg', category: '' },
-  { id: 'd7', src: '/media/images/masqool-hero-10.jpeg', category: '' },
-  { id: 'd8', src: '/media/images/masqool-hero-12.jpeg', category: '' },
-  { id: 'd9', src: '/media/images/masqool-hero-13.jpeg', category: '' },
-  { id: 'd10', src: '/media/images/masqool-hero-14.jpeg', category: '' },
-  { id: 'd11', src: '/media/images/masqool-hero-16.jpeg', category: '' },
-  { id: 'd12', src: '/media/images/masqool-hero-17.jpeg', category: '' },
+  { id: 'd2', images: ['/media/images/masqool-hero-02.jpeg'], category: '' },
+  { id: 'd3', images: ['/media/images/masqool-hero-03.jpeg'], category: '' },
+  { id: 'd4', images: ['/media/images/masqool-hero-04.jpeg'], category: '' },
+  { id: 'd5', images: ['/media/images/masqool-hero-05.jpeg'], category: '' },
+  { id: 'd6', images: ['/media/images/masqool-hero-06.jpeg'], category: '' },
+  { id: 'd7', images: ['/media/images/masqool-hero-10.jpeg'], category: '' },
+  { id: 'd8', images: ['/media/images/masqool-hero-12.jpeg'], category: '' },
+  { id: 'd9', images: ['/media/images/masqool-hero-13.jpeg'], category: '' },
+  { id: 'd10', images: ['/media/images/masqool-hero-14.jpeg'], category: '' },
+  { id: 'd11', images: ['/media/images/masqool-hero-16.jpeg'], category: '' },
+  { id: 'd12', images: ['/media/images/masqool-hero-17.jpeg'], category: '' },
 ];
 
 let redis: Redis | null = null;

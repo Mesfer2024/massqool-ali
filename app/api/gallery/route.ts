@@ -19,7 +19,21 @@ export async function POST(request: Request) {
 
   if (action === 'addItem') {
     const items = await getGalleryItems();
-    const newItem = { id: crypto.randomUUID(), src: body.src, category: body.category || '', nameAr: body.nameAr, nameEn: body.nameEn, price: body.price };
+    const newItem = { 
+      id: crypto.randomUUID(), 
+      images: body.images || [body.src], 
+      category: body.category || '', 
+      nameAr: body.nameAr,
+      nameEn: body.nameEn,
+      price: body.price,
+      originalPrice: body.originalPrice,
+      dimensionsAr: body.dimensionsAr,
+      dimensionsEn: body.dimensionsEn,
+      descriptionAr: body.descriptionAr,
+      descriptionEn: body.descriptionEn,
+      isNew: body.isNew,
+      isOnSale: body.isOnSale,
+    };
     const updated = [newItem, ...items];
     await setGalleryItems(updated);
     return Response.json({ ok: true, items: updated });

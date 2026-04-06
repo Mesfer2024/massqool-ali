@@ -3,15 +3,19 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 
 export interface GalleryItem {
   id: string;
-  src: string;           // الصورة الكبيرة (lightbox)
-  thumbnail?: string;    // صورة المعرض (thumbnail) - اختياري
+  images: string[];        // مصفوفة صور متعددة
   category: string;
   isSold?: boolean;
+  isNew?: boolean;         // شارة New
+  isOnSale?: boolean;      // شارة Sale
   nameAr?: string;
   nameEn?: string;
-  price?: number;
+  price?: number;          // السعر بعد الخصم
+  originalPrice?: number;  // السعر قبل الخصم
   dimensionsAr?: string;
   dimensionsEn?: string;
+  descriptionAr?: string;  // وصف تفصيلي
+  descriptionEn?: string;
 }
 
 export interface GalleryCategory {
@@ -54,23 +58,23 @@ const DEFAULT_CATEGORIES: GalleryCategory[] = [
 ];
 
 const DEFAULT_IMAGES: GalleryItem[] = [
-  { id: 'd2', src: '/media/images/masqool-hero-02.jpeg', category: '' },
-  { id: 'd3', src: '/media/images/masqool-hero-03.jpeg', category: '' },
-  { id: 'd4', src: '/media/images/masqool-hero-04.jpeg', category: '' },
-  { id: 'd5', src: '/media/images/masqool-hero-05.jpeg', category: '' },
-  { id: 'd6', src: '/media/images/masqool-hero-06.jpeg', category: '' },
-  { id: 'd7', src: '/media/images/masqool-hero-10.jpeg', category: '' },
-  { id: 'd8', src: '/media/images/masqool-hero-12.jpeg', category: '' },
-  { id: 'd9', src: '/media/images/masqool-hero-13.jpeg', category: '' },
-  { id: 'd10', src: '/media/images/masqool-hero-14.jpeg', category: '' },
-  { id: 'd11', src: '/media/images/masqool-hero-16.jpeg', category: '' },
-  { id: 'd12', src: '/media/images/masqool-hero-17.jpeg', category: '' },
+  { id: 'd2', images: ['/media/images/masqool-hero-02.jpeg'], category: '' },
+  { id: 'd3', images: ['/media/images/masqool-hero-03.jpeg'], category: '' },
+  { id: 'd4', images: ['/media/images/masqool-hero-04.jpeg'], category: '' },
+  { id: 'd5', images: ['/media/images/masqool-hero-05.jpeg'], category: '' },
+  { id: 'd6', images: ['/media/images/masqool-hero-06.jpeg'], category: '' },
+  { id: 'd7', images: ['/media/images/masqool-hero-10.jpeg'], category: '' },
+  { id: 'd8', images: ['/media/images/masqool-hero-12.jpeg'], category: '' },
+  { id: 'd9', images: ['/media/images/masqool-hero-13.jpeg'], category: '' },
+  { id: 'd10', images: ['/media/images/masqool-hero-14.jpeg'], category: '' },
+  { id: 'd11', images: ['/media/images/masqool-hero-16.jpeg'], category: '' },
+  { id: 'd12', images: ['/media/images/masqool-hero-17.jpeg'], category: '' },
 ];
 
 interface GalleryContextValue {
   items: GalleryItem[];
   categories: GalleryCategory[];
-  addItem: (src: string, category: string, extra?: { nameAr?: string; nameEn?: string; price?: number; dimensionsAr?: string; dimensionsEn?: string; thumbnail?: string }) => void;
+  addItem: (firstImage: string, category: string, extra?: Partial<GalleryItem>) => void;
   removeItem: (id: string) => void;
   updateItemCategory: (id: string, category: string) => void;
   updateItem: (id: string, data: Partial<GalleryItem>) => void;
@@ -105,15 +109,28 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {});
   }, []);
 
-  const addItem = useCallback(async (src: string, category: string, extra?: { nameAr?: string; nameEn?: string; price?: number }) => {
+  const addItem = useCallback(async (firstImage: string, category: string, extra?: Partial<GalleryItem>) => {
     const tempId = crypto.randomUUID();
-    setItems(prev => [{ id: tempId, src, category, ...extra }, ...prev]);
+    const images = extra?.images?.length ? extra.images : [firstImage];
+    setItems(prev => [{ id: tempId, images, category, ...extra }, ...prev]);
 
-    const uploadedSrc = await uploadToBlob(src);
+    const uploadedImages = await Promise.all(images.map(async (img) => {
+      if (!img.startsWith('data:')) return img;
+      try {
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          headers: adminHeaders(),
+          body: JSON.stringify({ dataUrl: img, folder: 'gallery' }),
+        });
+        const data = await res.json();
+        return data.url || img;
+      } catch { return img; }
+    }));
+    
     const res = await fetch('/api/gallery', {
       method: 'POST',
       headers: adminHeaders(),
-      body: JSON.stringify({ action: 'addItem', src: uploadedSrc, category, ...extra }),
+      body: JSON.stringify({ action: 'addItem', images: uploadedImages, category, ...extra }),
     });
     const data = await res.json();
     if (data.items) setItems(data.items);
