@@ -60,7 +60,7 @@ export default function CollectionPageClient() {
           {categories.map((cat) => (
             <motion.div key={cat.key} variants={fadeUp}>
               <Link
-                href={`/gallery?category=${cat.key}`}
+                href={`/collections/${cat.key}`}
                 className="group relative block aspect-[3/4] overflow-hidden rounded-sm bg-charcoal"
               >
                 <Image
