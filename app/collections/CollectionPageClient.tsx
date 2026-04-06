@@ -10,11 +10,10 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
 };
 
-// Category images mapping
-const CATEGORY_IMAGES: Record<string, string> = {
+// Fallback images if category has no products
+const FALLBACK_IMAGES: Record<string, string> = {
   'clocks': '/media/images/masqool-hero-03.jpeg',
   'tables': '/media/images/masqool-hero-09.jpeg',
-  'lamps': '/media/images/masqool-hero-06.jpeg',
   'fireplaces': '/media/images/masqool-hero-02.jpeg',
   'collectibles': '/media/images/masqool-hero-05.jpeg',
   'vases': '/media/images/masqool-hero-14.jpeg',
@@ -29,6 +28,15 @@ export default function CollectionPageClient() {
 
   // Get count of items per category
   const getCategoryCount = (key: string) => items.filter(item => item.category === key).length;
+
+  // Get first image from category products
+  const getCategoryImage = (key: string): string => {
+    const categoryItems = items.filter(item => item.category === key && item.images && item.images.length > 0);
+    if (categoryItems.length > 0 && categoryItems[0].images?.[0]) {
+      return categoryItems[0].images[0];
+    }
+    return FALLBACK_IMAGES[key] || '/media/images/masqool-hero-03.jpeg';
+  };
 
   return (
     <div className="min-h-screen bg-cream pt-24 pb-20">
@@ -64,7 +72,7 @@ export default function CollectionPageClient() {
                 className="group relative block aspect-[3/4] overflow-hidden rounded-sm bg-charcoal"
               >
                 <Image
-                  src={CATEGORY_IMAGES[cat.key] || '/media/images/masqool-hero-03.jpeg'}
+                  src={getCategoryImage(cat.key)}
                   alt={lang === 'ar' ? cat.labelAr : cat.labelEn}
                   fill
                   className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
